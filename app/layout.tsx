@@ -1,18 +1,17 @@
 import './globals.css'
-import type { Metadata } from 'next'
+import { headers } from 'next/headers'
 
-export const metadata: Metadata = {
-  title: 'EstimaPro',
-  description: 'Demande de soumission automobile',
-}
-
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const headersList = await headers()
+  const acceptLanguage = headersList.get('accept-language') || 'fr'
+  const lang = acceptLanguage.startsWith('en') ? 'en' : 'fr'
+
   return (
-    <html lang="fr">
+    <html lang={lang} suppressHydrationWarning>
       <body className="min-h-screen bg-gray-100">
         {children}
       </body>

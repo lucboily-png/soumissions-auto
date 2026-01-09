@@ -1,0 +1,39 @@
+import { createClient } from '@supabase/supabase-js'
+import { NextResponse } from 'next/server'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+export async function GET() {
+  // Récupérer toutes les quotes
+  const { data: quotes, error } = await supabase
+    .from('quotes')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  // Générer CSV
+  let csv = 'Client,Email,Phone,Service,Postal Code,Message,Garages Count\n'
+
+  for (const q of quotes!) {
+    // Compter dispatches pour chaque quote
+    const { count } = await supabase
+      .from('quote_dispatches')
+      .select('id', { count: 'exact' })
+      .eq('quote_id', q.id)
+
+    csv += `"${q.client_name}","${q.client_email}","${q.client_phone}","${q.service}","${q.postal_code}","${q.message || ''}","${count || 0}"\n`
+  }
+
+  return new Response(csv, {
+    headers: {
+      'Content-Type': 'text/csv',
+      'Content-Disposition': 'attachment; filename="quotes.csv"',
+    },
+  })
+}

@@ -1,14 +1,9 @@
-import QuoteForm from '../../components/QuoteForm'
+import QuoteFormEN from '@/components/QuoteFormEN'
 
 export default function PageEN() {
   return (
-    <main className="min-h-screen flex items-center justify-center p-6">
-      <div className="w-full max-w-2xl bg-white rounded-xl shadow-lg p-8">
-        <h1 className="text-2xl font-bold mb-6">
-          Auto Repair Quote Request
-        </h1>
-        <QuoteForm lang="en" />
-      </div>
+    <main className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
+      <QuoteFormEN />
     </main>
   )
 }

@@ -1,0 +1,148 @@
+import { NextResponse } from 'next/server'
+import { Resend } from 'resend'
+import { createClient } from '@supabase/supabase-js'
+import { garages } from '@/data/garages'
+
+const resend = new Resend(process.env.RESEND_API_KEY!)
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+function normalizePostalCode(code: string) {
+  return code.toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 3)
+}
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json()
+    const {
+      firstName,
+      lastName,
+      email,
+      phone,
+      service,
+      brand,
+      model,
+      year,
+      message,
+      postalCode,
+      preferredContact,
+      lang,
+    } = body
+
+    const isEN = lang === 'en'
+
+    if (
+      !firstName ||
+      !lastName ||
+      !email ||
+      !phone ||
+      !service ||
+      !brand ||
+      !model ||
+      !year ||
+      !postalCode ||
+      !preferredContact
+    ) {
+      return NextResponse.json(
+        { error: isEN ? 'Missing data' : 'Données manquantes' },
+        { status: 400 }
+      )
+    }
+
+    const postalPrefix = normalizePostalCode(postalCode)
+    const matchingGarages = garages.filter((g) =>
+      g.postalCodes.includes(postalPrefix)
+    )
+
+    console.log('Postal code:', postalPrefix)
+    console.log('Matching garages:', matchingGarages.map(g => g.name))
+
+    if (matchingGarages.length === 0) {
+      return NextResponse.json(
+        {
+          message: isEN ? 'No garage found near you' : 'Aucun garage trouvé',
+        },
+        { status: 404 }
+      )
+    }
+
+    // Création de la quote
+    const { data: quote, error: quoteError } = await supabase
+      .from('quotes')
+      .insert({
+        client_name: `${firstName} ${lastName}`,
+        client_email: email,
+        client_phone: phone,
+        service,
+        postal_code: postalPrefix,
+        message: message || null,
+      })
+      .select()
+      .single()
+
+    if (quoteError || !quote) {
+      console.error('Quote creation error:', quoteError)
+      return NextResponse.json(
+        { error: 'Erreur lors de la création de la demande' },
+        { status: 500 }
+      )
+    }
+
+    // Envoi email et log dispatch
+    for (const garage of matchingGarages) {
+      try {
+        console.log('Sending email to:', garage.email)
+
+        const result = await resend.emails.send({
+          from: process.env.EMAIL_FROM!,
+          to: garage.email,
+          subject: isEN ? 'New quote request' : 'Nouvelle demande de soumission',
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;">
+              <img src="${process.env.NEXT_PUBLIC_SITE_URL}/images/logo.png" alt="Soumissions Auto" style="max-width:180px; margin-bottom:20px;" />
+              <h2>${isEN ? 'New quote request' : 'Nouvelle demande de soumission'}</h2>
+              <p><strong>${isEN ? 'Client' : 'Client'}:</strong> ${firstName} ${lastName}</p>
+              <p><strong>Email:</strong> ${email}</p>
+              <p><strong>${isEN ? 'Phone' : 'Téléphone'}:</strong> ${phone}</p>
+              <p><strong>${isEN ? 'Preferred contact' : 'Communication préférée'}:</strong> ${preferredContact}</p>
+              <p><strong>${isEN ? 'Service' : 'Service'}:</strong> ${service}</p>
+              <p><strong>${isEN ? 'Vehicle' : 'Véhicule'}:</strong> ${brand} ${model} ${year}</p>
+              <p><strong>${isEN ? 'Postal code' : 'Code postal'}:</strong> ${postalPrefix}</p>
+              ${message ? `<p><strong>Message:</strong><br/>${message}</p>` : ''}
+              <hr />
+              <p style="font-size:12px; color:#666;">Auto quote platform</p>
+            </div>
+          `,
+        })
+
+        console.log('Resend result:', result)
+
+        // Log dispatch Supabase
+        const { error: dispatchError } = await supabase.from('quote_dispatches').insert({
+          quote_id: quote.id,
+          garage_email: garage.email,
+          garage_name: garage.name,
+          status: 'sent',
+        })
+
+        if (dispatchError) console.error('Dispatch log error:', dispatchError)
+      } catch (err: any) {
+        console.error('Email send error to', garage.email, err)
+        await supabase.from('quote_dispatches').insert({
+          quote_id: quote.id,
+          garage_email: garage.email,
+          garage_name: garage.name,
+          status: 'failed',
+          error_message: err?.message || 'Unknown error',
+        })
+      }
+    }
+
+    return NextResponse.json({ success: true, quote_id: quote.id }, { status: 200 })
+  } catch (err) {
+    console.error('Server error:', err)
+    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+  }
+}
