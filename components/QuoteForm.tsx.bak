@@ -1,191 +1,93 @@
 'use client'
 import { useState } from 'react'
 
-type FormData = {
-  firstName: string
-  lastName: string
-  email: string
-  phone: string
-  service: string
-  brand: string
-  model: string
-  year: string
-  message?: string
-  postalCode: string
-  preferredContact: string
-  lang: 'fr' | 'en'
-}
-
 export default function QuoteForm({ lang }: { lang: 'fr' | 'en' }) {
-  const [formData, setFormData] = useState<FormData>({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    service: '',
-    brand: '',
-    model: '',
-    year: '',
-    message: '',
-    postalCode: '',
-    preferredContact: '',
-    lang,
-  })
-
-  const [statusMessage, setStatusMessage] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
-  }
+  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error' | 'nogarage'>('idle')
+  const [errorMessage, setErrorMessage] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-    setStatusMessage(null)
+    setStatus('sending')
+    setErrorMessage('')
+
+    const formData = new FormData(e.currentTarget)
+    const data = Object.fromEntries(formData.entries())
 
     try {
       const res = await fetch('/api/send-quote', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...data, lang }),
       })
 
-      const data = await res.json()
+      const result = await res.json()
 
-      if (res.ok) {
-        setStatusMessage(
-          lang === 'fr'
-            ? `✅ Votre demande a été envoyée à ${data.garages} garage(s). Merci!`
-            : `✅ Your request was sent to ${data.garages} garage(s). Thank you!`
-        )
-        setFormData({ ...formData, firstName: '', lastName: '', email: '', phone: '', service: '', brand: '', model: '', year: '', message: '', postalCode: '', preferredContact: '' })
+      if (res.ok && result.success) {
+        setStatus('success')
+        e.currentTarget.reset()
+      } else if (res.status === 404) {
+        setStatus('nogarage')
       } else {
-        setStatusMessage(
-          data.message ||
-            (lang === 'fr'
-              ? '❌ Une erreur est survenue. Veuillez réessayer.'
-              : '❌ An error occurred. Please try again.')
+        setStatus('error')
+        setErrorMessage(
+          result.message ||
+            (lang === 'en'
+              ? 'An error occurred, please try again.'
+              : 'Une erreur est survenue. Veuillez réessayer.')
         )
       }
     } catch (err) {
-      setStatusMessage(
-        lang === 'fr'
-          ? '❌ Une erreur réseau est survenue.'
-          : '❌ A network error occurred.'
-      )
+      console.error(err)
+      setStatus('error')
+      setErrorMessage(lang === 'en'
+        ? 'An error occurred, please try again.'
+        : 'Une erreur est survenue. Veuillez réessayer.')
     }
-
-    setLoading(false)
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-lg mx-auto p-4 bg-white shadow rounded">
-      <h2 className="text-2xl font-bold mb-4">
-        {lang === 'fr' ? 'Demande de soumission' : 'Request a Quote'}
-      </h2>
-
-      <div className="grid gap-4">
-        <input
-          type="text"
-          name="firstName"
-          placeholder={lang === 'fr' ? 'Prénom' : 'First Name'}
-          value={formData.firstName}
-          onChange={handleChange}
-          required
-          className="border p-2 rounded w-full"
-        />
-        <input
-          type="text"
-          name="lastName"
-          placeholder={lang === 'fr' ? 'Nom' : 'Last Name'}
-          value={formData.lastName}
-          onChange={handleChange}
-          required
-          className="border p-2 rounded w-full"
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-          className="border p-2 rounded w-full"
-        />
-        <input
-          type="tel"
-          name="phone"
-          placeholder={lang === 'fr' ? 'Téléphone' : 'Phone'}
-          value={formData.phone}
-          onChange={handleChange}
-          required
-          className="border p-2 rounded w-full"
-        />
-        <input
-          type="text"
-          name="service"
-          placeholder={lang === 'fr' ? 'Service demandé' : 'Requested Service'}
-          value={formData.service}
-          onChange={handleChange}
-          required
-          className="border p-2 rounded w-full"
-        />
-        <input
-          type="text"
-          name="brand"
-          placeholder={lang === 'fr' ? 'Marque du véhicule' : 'Vehicle Brand'}
-          value={formData.brand}
-          onChange={handleChange}
-          required
-          className="border p-2 rounded w-full"
-        />
-        <input
-          type="text"
-          name="model"
-          placeholder={lang === 'fr' ? 'Modèle du véhicule' : 'Vehicle Model'}
-          value={formData.model}
-          onChange={handleChange}
-          required
-          className="border p-2 rounded w-full"
-        />
-        <input
-          type="text"
-          name="year"
-          placeholder={lang === 'fr' ? 'Année du véhicule' : 'Vehicle Year'}
-          value={formData.year}
-          onChange={handleChange}
-          required
-          className="border p-2 rounded w-full"
-        />
-        <input
-          type="text"
-          name="postalCode"
-          placeholder={lang === 'fr' ? 'Code postal' : 'Postal Code'}
-          value={formData.postalCode}
-          onChange={handleChange}
-          required
-          className="border p-2 rounded w-full"
-        />
-        <textarea
-          name="message"
-          placeholder={lang === 'fr' ? 'Message (optionnel)' : 'Message (optional)'}
-          value={formData.message}
-          onChange={handleChange}
-          className="border p-2 rounded w-full"
-        />
-      </div>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <input name="firstName" required placeholder={lang === 'en' ? 'First Name' : 'Prénom'} className="w-full p-2 border rounded" />
+      <input name="lastName" required placeholder={lang === 'en' ? 'Last Name' : 'Nom'} className="w-full p-2 border rounded" />
+      <input name="email" type="email" required placeholder="Email" className="w-full p-2 border rounded" />
+      <input name="phone" required placeholder={lang === 'en' ? 'Phone' : 'Téléphone'} className="w-full p-2 border rounded" />
+      <input name="postalCode" required placeholder={lang === 'en' ? 'Postal Code' : 'Code postal'} className="w-full p-2 border rounded" />
+      <input name="service" required placeholder={lang === 'en' ? 'Service needed' : 'Service demandé'} className="w-full p-2 border rounded" />
+      <input name="brand" placeholder={lang === 'en' ? 'Car brand' : 'Marque'} className="w-full p-2 border rounded" />
+      <input name="model" placeholder={lang === 'en' ? 'Model' : 'Modèle'} className="w-full p-2 border rounded" />
+      <input name="year" placeholder={lang === 'en' ? 'Year' : 'Année'} className="w-full p-2 border rounded" />
+      <textarea name="message" placeholder={lang === 'en' ? 'Message (optional)' : 'Message (optionnel)'} className="w-full p-2 border rounded"></textarea>
 
       <button
         type="submit"
-        disabled={loading}
-        className="mt-4 bg-blue-600 text-white p-2 rounded hover:bg-blue-700 disabled:opacity-50"
+        disabled={status === 'sending'}
+        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
       >
-        {loading ? (lang === 'fr' ? 'Envoi...' : 'Sending...') : lang === 'fr' ? 'Envoyer' : 'Send'}
+        {status === 'sending'
+          ? lang === 'en'
+            ? 'Sending...'
+            : 'Envoi...'
+          : lang === 'en'
+          ? 'Send'
+          : 'Envoyer'}
       </button>
 
-      {statusMessage && (
-        <p className="mt-4 p-2 rounded bg-gray-100 text-gray-800">{statusMessage}</p>
+      {status === 'success' && (
+        <p className="text-green-600 mt-2">
+          {lang === 'en'
+            ? 'Your quote request has been sent successfully!'
+            : 'Votre demande de soumission a été envoyée avec succès !'}
+        </p>
+      )}
+
+      {status === 'nogarage' && (
+        <p className="text-orange-600 mt-2">
+          {lang === 'en' ? 'No garage found for this postal code.' : 'Aucun garage trouvé pour ce code postal.'}
+        </p>
+      )}
+
+      {status === 'error' && (
+        <p className="text-red-600 mt-2">{errorMessage}</p>
       )}
     </form>
   )

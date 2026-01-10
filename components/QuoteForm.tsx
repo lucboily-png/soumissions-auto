@@ -5,45 +5,56 @@ export default function QuoteForm({ lang }: { lang: 'fr' | 'en' }) {
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error' | 'nogarage'>('idle')
   const [errorMessage, setErrorMessage] = useState('')
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setStatus('sending')
-    setErrorMessage('')
+  async function handleSubmit(e) {
+  e.preventDefault()
 
-    const formData = new FormData(e.currentTarget)
-    const data = Object.fromEntries(formData.entries())
+  setLoading(true)
+  setError('')
+  setSuccess('')
 
-    try {
-      const res = await fetch('/api/send-quote', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, lang }),
-      })
+  try {
+    const res = await fetch('/api/send-quote', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    })
 
-      const result = await res.json()
+    const data = await res.json()
 
-      if (res.ok && result.success) {
-        setStatus('success')
-        e.currentTarget.reset()
-      } else if (res.status === 404) {
-        setStatus('nogarage')
-      } else {
-        setStatus('error')
-        setErrorMessage(
-          result.message ||
-            (lang === 'en'
-              ? 'An error occurred, please try again.'
-              : 'Une erreur est survenue. Veuillez réessayer.')
+    if (!res.ok) {
+      // ❌ Aucun garage trouvé
+      if (res.status === 404) {
+        setError(
+          lang === 'en'
+            ? 'No garage found for this postal code.'
+            : 'Aucun garage trouvé pour ce code postal.'
         )
+        return
       }
-    } catch (err) {
-      console.error(err)
-      setStatus('error')
-      setErrorMessage(lang === 'en'
-        ? 'An error occurred, please try again.'
-        : 'Une erreur est survenue. Veuillez réessayer.')
+
+      // ❌ Autre erreur
+      throw new Error(data.error || 'Server error')
     }
+
+    // ✅ SUCCÈS
+    setSuccess(
+      lang === 'en'
+        ? 'Your request has been sent successfully. A garage will contact you shortly.'
+        : 'Votre demande a été envoyée avec succès. Un garage vous contactera sous peu.'
+    )
+
+    setFormData(initialState)
+  } catch (err) {
+    setError(
+      lang === 'en'
+        ? 'An error occurred. Please try again.'
+        : 'Une erreur est survenue. Veuillez réessayer.'
+    )
+  } finally {
+    setLoading(false)
   }
+}
+
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
