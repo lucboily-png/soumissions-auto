@@ -52,8 +52,6 @@ export async function POST(req: Request) {
     }
 
     const postalPrefix = normalizePostalCode(postalCode)
-
-    // 🔹 Filtrage des garages selon code postal
     const matchingGarages = garages.filter((g) =>
       g.postalCodes.includes(postalPrefix)
     )
@@ -70,7 +68,7 @@ export async function POST(req: Request) {
       )
     }
 
-    // 📌 Créer la demande dans Supabase
+    // Création de la quote
     const { data: quote, error: quoteError } = await supabase
       .from('quotes')
       .insert({
@@ -92,10 +90,10 @@ export async function POST(req: Request) {
       )
     }
 
-    // 📧 Envoyer email et log des dispatches
+    // Envoi email et log dispatch
     for (const garage of matchingGarages) {
       try {
-        console.log('Sending email to:', garage.name, garage.email)
+        console.log('Sending email to:', garage.email)
 
         const result = await resend.emails.send({
           from: process.env.EMAIL_FROM!,
@@ -121,7 +119,7 @@ export async function POST(req: Request) {
 
         console.log('Resend result:', result)
 
-        // 📌 Log dans Supabase avec garage_name
+        // Log dispatch Supabase
         const { error: dispatchError } = await supabase.from('quote_dispatches').insert({
           quote_id: quote.id,
           garage_email: garage.email,
