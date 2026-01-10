@@ -1,155 +1,94 @@
 'use client'
+import { useState } from 'react'
 
-import { useRef, useState } from 'react'
-import Image from 'next/image'
+export default function QuoteForm({ lang }: { lang: 'fr' | 'en' }) {
+  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error' | 'nogarage'>('idle')
+  const [errorMessage, setErrorMessage] = useState('')
 
-type Lang = 'fr' | 'en'
-type Status = 'idle' | 'success' | 'notfound' | 'error'
-
-export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
-  const formRef = useRef<HTMLFormElement>(null)
-  const [status, setStatus] = useState<Status>('idle')
-  const [loading, setLoading] = useState(false)
-
-  const t = {
-    fr: {
-      title: 'Demande de soumission – Réparation automobile',
-      success: 'Votre demande a été envoyée avec succès.',
-      notfound: 'Aucun garage trouvé près de chez vous.',
-      error: 'Une erreur est survenue. Veuillez réessayer.',
-      submit: 'Envoyer la demande',
-    },
-    en: {
-      title: 'Auto Repair Quote Request',
-      success: 'Your request has been sent successfully.',
-      notfound: 'No garage found near you.',
-      error: 'An error occurred. Please try again.',
-      submit: 'Submit request',
-    },
-  }[lang]
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-    setStatus('idle')
+    setStatus('sending')
+    setErrorMessage('')
+
+    const formData = new FormData(e.currentTarget)
+    const data = Object.fromEntries(formData.entries())
 
     try {
-      const formData = new FormData(e.currentTarget)
-
-      const payload = {
-  firstName: String(formData.get('firstName')),
-  lastName: String(formData.get('lastName')),
-  email: String(formData.get('email')),
-  phone: String(formData.get('phone')),
-  service: String(formData.get('service')),
-  brand: String(formData.get('brand')),
-  model: String(formData.get('model')),
-  year: String(formData.get('year')),
-  message: String(formData.get('message') || ''),
-  postalCode: String(formData.get('postalCode')),
-  preferredContact: String(formData.get('preferredContact')),
-  lang: 'fr',
-}
-
       const res = await fetch('/api/send-quote', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ ...data, lang }),
       })
 
-      if (res.status === 200) {
+      const result = await res.json()
+
+      if (res.ok && result.success) {
         setStatus('success')
-        formRef.current?.reset()
+        e.currentTarget.reset()
       } else if (res.status === 404) {
-        setStatus('notfound')
+        setStatus('nogarage')
       } else {
         setStatus('error')
+        setErrorMessage(
+          result.message ||
+            (lang === 'en'
+              ? 'An error occurred, please try again.'
+              : 'Une erreur est survenue. Veuillez réessayer.')
+        )
       }
     } catch (err) {
-      console.error('Submit error:', err)
+      console.error(err)
       setStatus('error')
-    } finally {
-      setLoading(false)
+      setErrorMessage(lang === 'en'
+        ? 'An error occurred, please try again.'
+        : 'Une erreur est survenue. Veuillez réessayer.')
     }
   }
-  
 
   return (
-    <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-3xl">
-	
-	<div className="flex justify-center mb-6">
-  <Image
-    src="/images/logo.png"
-    alt="Soumissions Auto"
-    width={220}
-    height={90}
-    priority
-  />
-</div>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <input name="firstName" required placeholder={lang === 'en' ? 'First Name' : 'Prénom'} className="w-full p-2 border rounded" />
+      <input name="lastName" required placeholder={lang === 'en' ? 'Last Name' : 'Nom'} className="w-full p-2 border rounded" />
+      <input name="email" type="email" required placeholder="Email" className="w-full p-2 border rounded" />
+      <input name="phone" required placeholder={lang === 'en' ? 'Phone' : 'Téléphone'} className="w-full p-2 border rounded" />
+      <input name="postalCode" required placeholder={lang === 'en' ? 'Postal Code' : 'Code postal'} className="w-full p-2 border rounded" />
+      <input name="service" required placeholder={lang === 'en' ? 'Service needed' : 'Service demandé'} className="w-full p-2 border rounded" />
+      <input name="brand" placeholder={lang === 'en' ? 'Car brand' : 'Marque'} className="w-full p-2 border rounded" />
+      <input name="model" placeholder={lang === 'en' ? 'Model' : 'Modèle'} className="w-full p-2 border rounded" />
+      <input name="year" placeholder={lang === 'en' ? 'Year' : 'Année'} className="w-full p-2 border rounded" />
+      <textarea name="message" placeholder={lang === 'en' ? 'Message (optional)' : 'Message (optionnel)'} className="w-full p-2 border rounded"></textarea>
 
-      <h1 className="text-3xl font-bold mb-6 text-center">
-        {t.title}
-      </h1>
+      <button
+        type="submit"
+        disabled={status === 'sending'}
+        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+      >
+        {status === 'sending'
+          ? lang === 'en'
+            ? 'Sending...'
+            : 'Envoi...'
+          : lang === 'en'
+          ? 'Send'
+          : 'Envoyer'}
+      </button>
 
       {status === 'success' && (
-        <div className="mb-6 rounded-lg bg-green-100 text-green-800 p-4 text-center font-medium">
-          {t.success}
-        </div>
+        <p className="text-green-600 mt-2">
+          {lang === 'en'
+            ? 'Your quote request has been sent successfully!'
+            : 'Votre demande de soumission a été envoyée avec succès !'}
+        </p>
       )}
 
-      {status === 'notfound' && (
-        <div className="mb-6 rounded-lg bg-red-100 text-red-800 p-4 text-center font-medium">
-          {t.notfound}
-        </div>
+      {status === 'nogarage' && (
+        <p className="text-orange-600 mt-2">
+          {lang === 'en' ? 'No garage found for this postal code.' : 'Aucun garage trouvé pour ce code postal.'}
+        </p>
       )}
 
       {status === 'error' && (
-        <div className="mb-6 rounded-lg bg-yellow-100 text-yellow-800 p-4 text-center font-medium">
-          {t.error}
-        </div>
+        <p className="text-red-600 mt-2">{errorMessage}</p>
       )}
-
-      <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
-        <input name="firstName" required placeholder="Prénom / First name" className="w-full border rounded-lg p-3" />
-        <input name="lastName" required placeholder="Nom / Last name" className="w-full border rounded-lg p-3" />
-        <input type="email" name="email" required placeholder="Email" className="w-full border rounded-lg p-3" />
-        <input type="tel" name="phone" required placeholder="Téléphone / Phone" className="w-full border rounded-lg p-3" />
-        <input name="postalCode" required placeholder="Code postal / Postal code" className="w-full border rounded-lg p-3" />
-
-        <select name="service" required className="w-full border rounded-lg p-3 bg-white">
-          <option value="">Type de service</option>
-          <option>Changement d’huile</option>
-          <option>Changement de pneus</option>
-          <option>Freins</option>
-          <option>Suspension</option>
-          <option>Alignement</option>
-          <option>Diagnostic moteur</option>
-          <option>Entretien général</option>
-          <option>Autre</option>
-        </select>
-
-        <input name="brand" required placeholder="Marque" className="w-full border rounded-lg p-3" />
-        <input name="model" required placeholder="Modèle" className="w-full border rounded-lg p-3" />
-        <input name="year" required placeholder="Année" className="w-full border rounded-lg p-3" />
-
-		<select name="preferredContact" required className="w-full border rounded-lg p-3 bg-white">
-          <option value="">Moyen de communication préféré</option>
-          <option>Courriel</option>
-          <option>Téléphone</option>
-          <option>Texto</option>
-        </select>
-		
-		
-        <textarea name="message" placeholder="Message (optionnel)" className="w-full border rounded-lg p-3 h-28" />
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold py-3 rounded-lg text-lg"
-        >
-          {loading ? '...' : t.submit}
-        </button>
-      </form>
-    </div>
+    </form>
   )
 }
