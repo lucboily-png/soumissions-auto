@@ -3,8 +3,8 @@ const nextConfig = {
   async redirects() {
     return [
       {
-        source: '/:path*',
-        destination: 'https://soumissions-auto.ca/:path*',
+        source: "/",
+        destination: "https://soumissions-auto.ca",
         permanent: true,
       },
     ]
