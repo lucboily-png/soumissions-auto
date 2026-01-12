@@ -1,9 +1,10 @@
-import QuoteFormEN from '@/components/QuoteFormEN'
+// /app/en/page.tsx
+import QuoteForm from '@/components/QuoteForm'
 
-export default function PageEN() {
+export default function ENPage() {
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
-      <QuoteFormEN />
-    </main>
+    <div className="p-4">
+      <QuoteForm lang="en" />
+    </div>
   )
 }
