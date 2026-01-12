@@ -1,152 +1,139 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-import { Resend } from 'resend';
-import garages from '@/data/garages.json';
+import { NextResponse } from 'next/server'
+import { Resend } from 'resend'
+import garages from '@/data/garages.json'
 
 export async function POST(req: Request) {
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_KEY;
-  const resendKey = process.env.RESEND_API_KEY;
-
-  if (!supabaseUrl || !supabaseKey || !resendKey) {
-    console.error("❌ Missing env vars");
-    return NextResponse.json({ error: 'Missing env vars' }, { status: 500 });
-  }
-
-  const supabase = createClient(supabaseUrl, supabaseKey);
-  const resend = new Resend(resendKey);
-
   try {
-    const data = await req.json();
+    // Vérification clé Resend
+    if (!process.env.RESEND_API_KEY) {
+      return NextResponse.json(
+        { success: false, message: 'Configuration email manquante' },
+        { status: 500 }
+      )
+    }
 
-    const firstName = data.firstName || '';
-    const lastName = data.lastName || '';
-    const name = `${firstName} ${lastName}`.trim();
-    const {
-      email = '',
-      phone = '',
-      postalCode = '',
-      year = '',
-      brand = '',
-      model = '',
-      serviceType = '',
-      description = '',
-      urgency = '',
-      preferred_contact = '',
-      language = 'FR',
-    } = data;
+    const resend = new Resend(process.env.RESEND_API_KEY)
+    const data = await req.json()
 
-    const normalizedPostal = postalCode.replace(/\s/g, '').toUpperCase();
+    // Validation minimale
+    if (!data.email || !data.postalCode) {
+      return NextResponse.json(
+        { success: false, message: 'Données invalides' },
+        { status: 400 }
+      )
+    }
 
-    // Cherche garages
-    const matchedGarages = garages.filter(g =>
-      g.postalCodes.map(pc => pc.replace(/\s/g, '').toUpperCase())
-        .includes(normalizedPostal)
-    );
+    // Normalisation
+const postalCode = data.postalCode.replace(/\s/g, '').toUpperCase()
+const fsa = postalCode.substring(0, 3)
 
+// Recherche garages par FSA
+const matchedGarages = garages.filter(g =>
+  g.postalCodes
+    .map(pc => pc.replace(/\s/g, '').toUpperCase().substring(0, 3))
+    .includes(fsa)
+)
+
+    // Aucun garage trouvé
     if (matchedGarages.length === 0) {
-      return NextResponse.json({
-        success: false,
-        message: language === 'EN'
-          ? "Sorry, no garages found near your location."
-          : "Désolé, nous n'avons trouvé aucun garage près de chez-vous."
-      }, { status: 404 });
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Désolé, nous n'avons trouvé aucun garage près de chez-vous.",
+        },
+        { status: 404 }
+      )
     }
 
-    // 🔹 Enregistrement Supabase
-    const { error: dbError } = await supabase.from('quotes').insert([{
-      name,
-      email,
-      phone,
-      postal_code: normalizedPostal,
-      year,
-      brand,
-      model,
-      service: serviceType,
-      description,
-      urgency,
-      preferred_contact,
-      language
-    }]);
+    /* =========================
+       EMAIL GARAGE
+    ========================= */
+    const garageEmailHTML = `
+      <div style="font-family:Arial,sans-serif;background:#f4f6f8;padding:24px">
+        <div style="max-width:600px;margin:auto;background:#ffffff;border-radius:8px;overflow:hidden">
+          <div style="background:#0f172a;color:#ffffff;padding:20px">
+            <h2 style="margin:0">Nouvelle demande de soumission</h2>
+          </div>
+          <div style="padding:20px;color:#111827">
+            <p><strong>Nom :</strong> ${data.firstName} ${data.lastName}</p>
+            <p><strong>Email :</strong> ${data.email}</p>
+            <p><strong>Téléphone :</strong> ${data.phone}</p>
+            <p><strong>Code postal :</strong> ${postalCode}</p>
 
-    if (dbError) {
-      console.error("❌ Supabase error:", dbError.message);
-      return NextResponse.json({ error: dbError.message }, { status: 500 });
-    }
+            <hr style="margin:16px 0" />
 
-    // 🔹 Email aux garages
-    const garageEmailHTML = language === 'EN'
-      ? `<div style="font-family:Arial,sans-serif;background:#f4f6f8;padding:24px">
-           <div style="max-width:600px;margin:auto;background:#fff;border-radius:8px;overflow:hidden">
-           <div style="background:#0f172a;color:#fff;padding:20px"><h2>New Quote Request</h2></div>
-           <div style="padding:20px;color:#111827">
-           <p><strong>Name:</strong> ${name}</p>
-           <p><strong>Email:</strong> ${email}</p>
-           <p><strong>Phone:</strong> ${phone}</p>
-           <p><strong>Postal Code:</strong> ${normalizedPostal}</p>
-           <hr/>
-           <p><strong>Vehicle:</strong> ${year} ${brand} ${model}</p>
-           <p><strong>Service:</strong> ${serviceType}</p>
-           <p><strong>Urgency:</strong> ${urgency}</p>
-           <p><strong>Description:</strong> ${description || '—'}</p>
-           </div></div></div>`
-      : `<div style="font-family:Arial,sans-serif;background:#f4f6f8;padding:24px">
-           <div style="max-width:600px;margin:auto;background:#fff;border-radius:8px;overflow:hidden">
-           <div style="background:#0f172a;color:#fff;padding:20px"><h2>Nouvelle demande de soumission</h2></div>
-           <div style="padding:20px;color:#111827">
-           <p><strong>Nom :</strong> ${name}</p>
-           <p><strong>Email :</strong> ${email}</p>
-           <p><strong>Téléphone :</strong> ${phone}</p>
-           <p><strong>Code postal :</strong> ${normalizedPostal}</p>
-           <hr/>
-           <p><strong>Véhicule :</strong> ${year} ${brand} ${model}</p>
-           <p><strong>Service :</strong> ${serviceType}</p>
-           <p><strong>Délai :</strong> ${urgency}</p>
-           <p><strong>Description :</strong> ${description || '—'}</p>
-           </div></div></div>`;
+            <p><strong>Véhicule :</strong><br>
+              ${data.year} ${data.brand} ${data.model}
+            </p>
 
+            <p><strong>Service demandé :</strong><br>
+              ${data.service}
+            </p>
+
+
+            <p><strong>Description :</strong><br>
+              ${data.message || '—'}
+            </p>
+          </div>
+        </div>
+      </div>
+    `
+
+    // Envoi aux garages
     for (const garage of matchedGarages) {
       await resend.emails.send({
-        from: 'Soumissions Auto <no-reply@soumissions-auto.ca>',
+        from: 'Soumissions Auto <onboarding@resend.dev>',
         to: garage.email,
-        subject: language === 'EN'
-          ? `🛠️ New Quote – ${brand} ${model} ${year}`
-          : `🛠️ Nouvelle demande – ${brand} ${model} ${year}`,
+        subject: `🛠️ Nouvelle demande de soumission – ${data.brand} ${data.model} ${data.year}`,
         html: garageEmailHTML,
-      });
+      })
     }
 
-    // 🔹 Email au client
-    const clientEmailHTML = language === 'EN'
-      ? `<div style="font-family:Arial,sans-serif;background:#f4f6f8;padding:24px">
-           <div style="max-width:600px;margin:auto;background:#fff;border-radius:8px;overflow:hidden">
-           <div style="background:#2563eb;color:#fff;padding:20px"><h2>Request Sent Successfully</h2></div>
-           <div style="padding:20px;color:#111827">
-           <p>Hello ${firstName},</p>
-           <p>Your quote request has been sent to garages near you.</p>
-           <p>They will contact you soon according to your preferred method.</p>
-           </div></div></div>`
-      : `<div style="font-family:Arial,sans-serif;background:#f4f6f8;padding:24px">
-           <div style="max-width:600px;margin:auto;background:#fff;border-radius:8px;overflow:hidden">
-           <div style="background:#2563eb;color:#fff;padding:20px"><h2>Demande envoyée avec succès</h2></div>
-           <div style="padding:20px;color:#111827">
-           <p>Bonjour ${firstName},</p>
-           <p>Votre demande a bien été transmise à des garages près de chez vous.</p>
-           <p>Un professionnel communiquera avec vous selon votre préférence.</p>
-           </div></div></div>`;
+    /* =========================
+       EMAIL CLIENT
+    ========================= */
+    const clientEmailHTML = `
+      <div style="font-family:Arial,sans-serif;background:#f4f6f8;padding:24px">
+        <div style="max-width:600px;margin:auto;background:#ffffff;border-radius:8px;overflow:hidden">
+          <div style="background:#2563eb;color:#ffffff;padding:20px">
+            <h2 style="margin:0">Demande envoyée avec succès</h2>
+          </div>
+          <div style="padding:20px;color:#111827">
+            <p>Bonjour ${data.firstName},</p>
+
+            <p>
+              Votre demande de soumission a bien été transmise à des garages
+              près de chez vous.
+            </p>
+
+            <p>
+              Un professionnel communiquera avec vous sous peu selon votre
+              préférence de contact.
+            </p>
+
+            <hr style="margin:16px 0" />
+
+            <p style="font-size:14px;color:#6b7280">
+              Soumissions Auto – Mise en relation avec des garages locaux.
+            </p>
+          </div>
+        </div>
+      </div>
+    `
 
     await resend.emails.send({
-      from: 'Soumissions Auto <no-reply@soumissions-auto.ca>',
-      to: email,
-      subject: language === 'EN'
-        ? 'Quote Request Confirmation'
-        : 'Confirmation de votre demande de soumission',
+      from: 'Soumissions Auto <onboarding@resend.dev>',
+      to: data.email,
+      subject: 'Confirmation de votre demande de soumission',
       html: clientEmailHTML,
-    });
+    })
 
-    return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error('❌ Server error:', (err as Error).message);
-    return NextResponse.json({ error: (err as Error).message }, { status: 500 });
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('Erreur API submit:', error)
+    return NextResponse.json(
+      { success: false, message: 'Erreur serveur' },
+      { status: 500 }
+    )
   }
 }

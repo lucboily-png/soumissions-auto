@@ -3,30 +3,20 @@
 import { useRef, useState } from 'react'
 import Image from 'next/image'
 
-type Lang = 'fr' | 'en'
 type Status = 'idle' | 'success' | 'notfound' | 'error'
 
-export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
+export default function QuoteForm() {
   const formRef = useRef<HTMLFormElement>(null)
   const [status, setStatus] = useState<Status>('idle')
   const [loading, setLoading] = useState(false)
 
   const t = {
-    fr: {
-      title: 'Demande de soumission – Réparation automobile',
-      success: 'Votre demande a été envoyée avec succès.',
-      notfound: 'Aucun garage trouvé près de chez vous.',
-      error: 'Une erreur est survenue. Veuillez réessayer.',
-      submit: 'Envoyer la demande',
-    },
-    en: {
-      title: 'Auto Repair Quote Request',
-      success: 'Your request has been sent successfully.',
-      notfound: 'No garage found near you.',
-      error: 'An error occurred. Please try again.',
-      submit: 'Submit request',
-    },
-  }[lang]
+    title: 'Demande de soumission – Réparation automobile',
+    success: 'Votre demande a été envoyée avec succès.',
+    notfound: 'Aucun garage trouvé près de chez vous.',
+    error: 'Une erreur est survenue. Veuillez réessayer.',
+    submit: 'Envoyer la demande',
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -37,19 +27,19 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
       const formData = new FormData(e.currentTarget)
 
       const payload = {
-  firstName: String(formData.get('firstName')),
-  lastName: String(formData.get('lastName')),
-  email: String(formData.get('email')),
-  phone: String(formData.get('phone')),
-  service: String(formData.get('service')),
-  brand: String(formData.get('brand')),
-  model: String(formData.get('model')),
-  year: String(formData.get('year')),
-  message: String(formData.get('message') || ''),
-  postalCode: String(formData.get('postalCode')),
-  preferredContact: String(formData.get('preferredContact')),
-  lang: 'fr',
-}
+        firstName: String(formData.get('firstName')),
+        lastName: String(formData.get('lastName')),
+        email: String(formData.get('email')),
+        phone: String(formData.get('phone')),
+        postalCode: String(formData.get('postalCode')),
+        service: String(formData.get('service')),
+        brand: String(formData.get('brand')),
+        model: String(formData.get('model')),
+        year: String(formData.get('year')),
+        preferredContact: String(formData.get('preferredContact')),
+        message: String(formData.get('message') || ''),
+        lang: 'fr',
+      }
 
       const res = await fetch('/api/send-quote', {
         method: 'POST',
@@ -66,90 +56,82 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
         setStatus('error')
       }
     } catch (err) {
-      console.error('Submit error:', err)
+      console.error(err)
       setStatus('error')
     } finally {
       setLoading(false)
     }
   }
-  
 
   return (
-    <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-3xl">
-	
-	<div className="flex justify-center mb-6">
-  <Image
-    src="/images/logo.png"
-    alt="Soumissions Auto"
-    width={220}
-    height={90}
-    priority
-  />
-</div>
-
-      <h1 className="text-3xl font-bold mb-6 text-center">
-        {t.title}
-      </h1>
-
-      {status === 'success' && (
-        <div className="mb-6 rounded-lg bg-green-100 text-green-800 p-4 text-center font-medium">
-          {t.success}
+    <div className="flex justify-center min-h-screen bg-gray-50 p-4">
+      <div className="w-full max-w-md">
+        <div className="flex justify-center mb-4">
+          <Image
+            src="/images/logo.png"
+            alt="Soumissions Auto"
+            width={220}
+            height={90}
+            priority
+          />
         </div>
-      )}
 
-      {status === 'notfound' && (
-        <div className="mb-6 rounded-lg bg-red-100 text-red-800 p-4 text-center font-medium">
-          {t.notfound}
-        </div>
-      )}
+        <h1 className="text-3xl font-bold mb-6 text-center">{t.title}</h1>
 
-      {status === 'error' && (
-        <div className="mb-6 rounded-lg bg-yellow-100 text-yellow-800 p-4 text-center font-medium">
-          {t.error}
-        </div>
-      )}
+        {status === 'success' && (
+          <div className="mb-6 bg-green-100 text-green-800 p-4 rounded-lg text-center">
+            {t.success}
+          </div>
+        )}
+        {status === 'notfound' && (
+          <div className="mb-6 bg-red-100 text-red-800 p-4 rounded-lg text-center">
+            {t.notfound}
+          </div>
+        )}
+        {status === 'error' && (
+          <div className="mb-6 bg-yellow-100 text-yellow-800 p-4 rounded-lg text-center">
+            {t.error}
+          </div>
+        )}
 
-      <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
-        <input name="firstName" required placeholder="Prénom / First name" className="w-full border rounded-lg p-3" />
-        <input name="lastName" required placeholder="Nom / Last name" className="w-full border rounded-lg p-3" />
-        <input type="email" name="email" required placeholder="Email" className="w-full border rounded-lg p-3" />
-        <input type="tel" name="phone" required placeholder="Téléphone / Phone" className="w-full border rounded-lg p-3" />
-        <input name="postalCode" required placeholder="Code postal / Postal code" className="w-full border rounded-lg p-3" />
+        <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
+          <input name="firstName" required placeholder="Prénom" className="w-full border p-3 rounded-lg" />
+          <input name="lastName" required placeholder="Nom" className="w-full border p-3 rounded-lg" />
+          <input type="email" name="email" required placeholder="Courriel" className="w-full border p-3 rounded-lg" />
+          <input name="phone" required placeholder="Téléphone" className="w-full border p-3 rounded-lg" />
+          <input name="postalCode" required placeholder="Code postal" className="w-full border p-3 rounded-lg" />
 
-        <select name="service" required className="w-full border rounded-lg p-3 bg-white">
-          <option value="">Type de service</option>
-          <option>Changement d’huile</option>
-          <option>Changement de pneus</option>
-          <option>Freins</option>
-          <option>Suspension</option>
-          <option>Alignement</option>
-          <option>Diagnostic moteur</option>
-          <option>Entretien général</option>
-          <option>Autre</option>
-        </select>
+          <select name="service" required className="w-full border p-3 rounded-lg bg-white">
+            <option value="">Type de service</option>
+            <option value="oil_change">Changement d’huile</option>
+            <option value="tires">Changement de pneus</option>
+            <option value="brakes">Freins</option>
+            <option value="diagnostic">Diagnostic moteur</option>
+            <option value="general">Entretien général</option>
+          </select>
 
-        <input name="brand" required placeholder="Marque" className="w-full border rounded-lg p-3" />
-        <input name="model" required placeholder="Modèle" className="w-full border rounded-lg p-3" />
-        <input name="year" required placeholder="Année" className="w-full border rounded-lg p-3" />
+          <input name="brand" required placeholder="Marque" className="w-full border p-3 rounded-lg" />
+          <input name="model" required placeholder="Modèle" className="w-full border p-3 rounded-lg" />
+          <input name="year" required placeholder="Année" className="w-full border p-3 rounded-lg" />
 
-		<select name="preferredContact" required className="w-full border rounded-lg p-3 bg-white">
-          <option value="">Moyen de communication préféré</option>
-          <option>Courriel</option>
-          <option>Téléphone</option>
-          <option>Texto</option>
-        </select>
-		
-		
-        <textarea name="message" placeholder="Message (optionnel)" className="w-full border rounded-lg p-3 h-28" />
+          <select name="preferredContact" required className="w-full border p-3 rounded-lg bg-white">
+            <option value="">Moyen de communication préféré</option>
+            <option value="email">Courriel</option>
+            <option value="phone">Téléphone</option>
+            <option value="text">Texto</option>
+          </select>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold py-3 rounded-lg text-lg"
-        >
-          {loading ? '...' : t.submit}
-        </button>
-      </form>
+          <textarea name="message" placeholder="Message (optionnel)" className="w-full border p-3 rounded-lg h-28" />
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg"
+          >
+            {loading ? '...' : t.submit}
+          </button>
+        </form>
+      </div>
     </div>
   )
 }

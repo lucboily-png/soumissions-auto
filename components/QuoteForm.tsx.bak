@@ -48,7 +48,7 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
   message: String(formData.get('message') || ''),
   postalCode: String(formData.get('postalCode')),
   preferredContact: String(formData.get('preferredContact')),
-  lang: 'fr',
+  lang, 'fr',
 }
 
       const res = await fetch('/api/send-quote', {
@@ -78,6 +78,7 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
     <div className="flex justify-center items-start min-h-screen bg-gray-50 p-4">
   <div className="w-full max-w-md">
 
+    <div className="flex justify-center mb-4">
   <Image
     src="/images/logo.png"
     alt="Soumissions Auto"
