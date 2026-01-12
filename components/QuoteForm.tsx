@@ -1,186 +1,155 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import Image from 'next/image'
 
-interface FormData {
-  firstName: string
-  lastName: string
-  email: string
-  phone: string
-  postalCode: string
-  service: string
-  brand?: string
-  model?: string
-  year?: string
-  message?: string
-}
+type Lang = 'fr' | 'en'
+type Status = 'idle' | 'success' | 'notfound' | 'error'
 
-const initialFormData: FormData = {
-  firstName: '',
-  lastName: '',
-  email: '',
-  phone: '',
-  postalCode: '',
-  service: '',
-  brand: '',
-  model: '',
-  year: '',
-  message: '',
-}
+export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
+  const formRef = useRef<HTMLFormElement>(null)
+  const [status, setStatus] = useState<Status>('idle')
+  const [loading, setLoading] = useState(false)
 
-export default function QuoteForm({ lang }: { lang: 'fr' | 'en' }) {
-  const [formData, setFormData] = useState<FormData>(initialFormData)
-  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error' | 'nogarage'>('idle')
-  const [errorMessage, setErrorMessage] = useState('')
+  const t = {
+    fr: {
+      title: 'Demande de soumission – Réparation automobile',
+      success: 'Votre demande a été envoyée avec succès.',
+      notfound: 'Aucun garage trouvé près de chez vous.',
+      error: 'Une erreur est survenue. Veuillez réessayer.',
+      submit: 'Envoyer la demande',
+    },
+    en: {
+      title: 'Auto Repair Quote Request',
+      success: 'Your request has been sent successfully.',
+      notfound: 'No garage found near you.',
+      error: 'An error occurred. Please try again.',
+      submit: 'Submit request',
+    },
+  }[lang]
 
-  // Met à jour le state du formulaire
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
-  }
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    setStatus('sending')
-    setErrorMessage('')
+    setLoading(true)
+    setStatus('idle')
 
     try {
+      const formData = new FormData(e.currentTarget)
+
+      const payload = {
+  firstName: String(formData.get('firstName')),
+  lastName: String(formData.get('lastName')),
+  email: String(formData.get('email')),
+  phone: String(formData.get('phone')),
+  service: String(formData.get('service')),
+  brand: String(formData.get('brand')),
+  model: String(formData.get('model')),
+  year: String(formData.get('year')),
+  message: String(formData.get('message') || ''),
+  postalCode: String(formData.get('postalCode')),
+  preferredContact: String(formData.get('preferredContact')),
+  lang: 'fr',
+}
+
       const res = await fetch('/api/send-quote', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, lang }),
+        body: JSON.stringify(payload),
       })
 
-      const data = await res.json()
-
-      if (!res.ok) {
-        if (res.status === 404) {
-          setStatus('nogarage')
-          return
-        }
-        throw new Error(data.error || 'Server error')
+      if (res.status === 200) {
+        setStatus('success')
+        formRef.current?.reset()
+      } else if (res.status === 404) {
+        setStatus('notfound')
+      } else {
+        setStatus('error')
       }
-
-      setStatus('success')
-      setFormData(initialFormData)
     } catch (err) {
+      console.error('Submit error:', err)
       setStatus('error')
-      setErrorMessage(
-        lang === 'en'
-          ? 'An error occurred. Please try again.'
-          : 'Une erreur est survenue. Veuillez réessayer.'
-      )
+    } finally {
+      setLoading(false)
     }
   }
+  
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <input
-        name="firstName"
-        value={formData.firstName}
-        onChange={handleChange}
-        required
-        placeholder={lang === 'en' ? 'First Name' : 'Prénom'}
-        className="w-full p-2 border rounded"
-      />
-      <input
-        name="lastName"
-        value={formData.lastName}
-        onChange={handleChange}
-        required
-        placeholder={lang === 'en' ? 'Last Name' : 'Nom'}
-        className="w-full p-2 border rounded"
-      />
-      <input
-        name="email"
-        type="email"
-        value={formData.email}
-        onChange={handleChange}
-        required
-        placeholder="Email"
-        className="w-full p-2 border rounded"
-      />
-      <input
-        name="phone"
-        value={formData.phone}
-        onChange={handleChange}
-        required
-        placeholder={lang === 'en' ? 'Phone' : 'Téléphone'}
-        className="w-full p-2 border rounded"
-      />
-      <input
-        name="postalCode"
-        value={formData.postalCode}
-        onChange={handleChange}
-        required
-        placeholder={lang === 'en' ? 'Postal Code' : 'Code postal'}
-        className="w-full p-2 border rounded"
-      />
-      <input
-        name="service"
-        value={formData.service}
-        onChange={handleChange}
-        required
-        placeholder={lang === 'en' ? 'Service needed' : 'Service demandé'}
-        className="w-full p-2 border rounded"
-      />
-      <input
-        name="brand"
-        value={formData.brand}
-        onChange={handleChange}
-        placeholder={lang === 'en' ? 'Car brand' : 'Marque'}
-        className="w-full p-2 border rounded"
-      />
-      <input
-        name="model"
-        value={formData.model}
-        onChange={handleChange}
-        placeholder={lang === 'en' ? 'Model' : 'Modèle'}
-        className="w-full p-2 border rounded"
-      />
-      <input
-        name="year"
-        value={formData.year}
-        onChange={handleChange}
-        placeholder={lang === 'en' ? 'Year' : 'Année'}
-        className="w-full p-2 border rounded"
-      />
-      <textarea
-        name="message"
-        value={formData.message}
-        onChange={handleChange}
-        placeholder={lang === 'en' ? 'Message (optional)' : 'Message (optionnel)'}
-        className="w-full p-2 border rounded"
-      />
+    <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-3xl">
+	
+	<div className="flex justify-center mb-6">
+  <Image
+    src="/images/logo.png"
+    alt="Soumissions Auto"
+    width={220}
+    height={90}
+    priority
+  />
+</div>
 
-      <button
-        type="submit"
-        disabled={status === 'sending'}
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
-      >
-        {status === 'sending'
-          ? lang === 'en' ? 'Sending...' : 'Envoi...'
-          : lang === 'en' ? 'Send' : 'Envoyer'}
-      </button>
+      <h1 className="text-3xl font-bold mb-6 text-center">
+        {t.title}
+      </h1>
 
       {status === 'success' && (
-        <p className="text-green-600 mt-2">
-          {lang === 'en'
-            ? 'Your quote request has been sent successfully! A garage will contact you shortly.'
-            : 'Votre demande de soumission a été envoyée avec succès ! Un garage vous contactera sous peu.'}
-        </p>
+        <div className="mb-6 rounded-lg bg-green-100 text-green-800 p-4 text-center font-medium">
+          {t.success}
+        </div>
       )}
 
-      {status === 'nogarage' && (
-        <p className="text-orange-600 mt-2">
-          {lang === 'en'
-            ? 'No garage found for this postal code.'
-            : 'Aucun garage trouvé pour ce code postal.'}
-        </p>
+      {status === 'notfound' && (
+        <div className="mb-6 rounded-lg bg-red-100 text-red-800 p-4 text-center font-medium">
+          {t.notfound}
+        </div>
       )}
 
       {status === 'error' && (
-        <p className="text-red-600 mt-2">{errorMessage}</p>
+        <div className="mb-6 rounded-lg bg-yellow-100 text-yellow-800 p-4 text-center font-medium">
+          {t.error}
+        </div>
       )}
-    </form>
+
+      <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
+        <input name="firstName" required placeholder="Prénom / First name" className="w-full border rounded-lg p-3" />
+        <input name="lastName" required placeholder="Nom / Last name" className="w-full border rounded-lg p-3" />
+        <input type="email" name="email" required placeholder="Email" className="w-full border rounded-lg p-3" />
+        <input type="tel" name="phone" required placeholder="Téléphone / Phone" className="w-full border rounded-lg p-3" />
+        <input name="postalCode" required placeholder="Code postal / Postal code" className="w-full border rounded-lg p-3" />
+
+        <select name="service" required className="w-full border rounded-lg p-3 bg-white">
+          <option value="">Type de service</option>
+          <option>Changement d’huile</option>
+          <option>Changement de pneus</option>
+          <option>Freins</option>
+          <option>Suspension</option>
+          <option>Alignement</option>
+          <option>Diagnostic moteur</option>
+          <option>Entretien général</option>
+          <option>Autre</option>
+        </select>
+
+        <input name="brand" required placeholder="Marque" className="w-full border rounded-lg p-3" />
+        <input name="model" required placeholder="Modèle" className="w-full border rounded-lg p-3" />
+        <input name="year" required placeholder="Année" className="w-full border rounded-lg p-3" />
+
+		<select name="preferredContact" required className="w-full border rounded-lg p-3 bg-white">
+          <option value="">Moyen de communication préféré</option>
+          <option>Courriel</option>
+          <option>Téléphone</option>
+          <option>Texto</option>
+        </select>
+		
+		
+        <textarea name="message" placeholder="Message (optionnel)" className="w-full border rounded-lg p-3 h-28" />
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold py-3 rounded-lg text-lg"
+        >
+          {loading ? '...' : t.submit}
+        </button>
+      </form>
+    </div>
   )
 }
