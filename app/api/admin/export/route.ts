@@ -1,44 +1,32 @@
-import { createClient } from '@supabase/supabase-js'
-import { NextResponse } from 'next/server'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+import { createClient } from '@supabase/supabase-js';
+import { NextResponse } from 'next/server';
 
 export async function GET() {
-  // Récupérer toutes les quotes
-  const { data: quotes, error: quotesError } = await supabase
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_KEY;
+
+  // Sécurité build + runtime
+  if (!supabaseUrl || !supabaseKey) {
+    return NextResponse.json(
+      { error: 'Supabase environment variables are missing' },
+      { status: 500 }
+    );
+  }
+
+  // ⚠️ IMPORTANT : création du client ICI, PAS au niveau global
+  const supabase = createClient(supabaseUrl, supabaseKey);
+
+  const { data, error } = await supabase
     .from('quotes')
     .select('*')
-    .order('created_at', { ascending: false })
+    .order('created_at', { ascending: false });
 
-  if (quotesError) {
-    return NextResponse.json({ error: quotesError.message }, { status: 500 })
+  if (error) {
+    return NextResponse.json(
+      { error: error.message },
+      { status: 500 }
+    );
   }
 
-  let csv = 'Client,Email,Phone,Service,Postal Code,Message,Garage Name,Garage Email,Status\n'
-
-  for (const q of quotes!) {
-    // Récupérer les dispatches pour chaque quote
-    const { data: dispatches } = await supabase
-      .from('quote_dispatches')
-      .select('*')
-      .eq('quote_id', q.id)
-
-    if (dispatches && dispatches.length > 0) {
-      dispatches.forEach((d) => {
-        csv += `"${q.client_name}","${q.client_email}","${q.client_phone}","${q.service}","${q.postal_code}","${q.message || ''}","${d.garage_name || ''}","${d.garage_email}","${d.status}"\n`
-      })
-    } else {
-      csv += `"${q.client_name}","${q.client_email}","${q.client_phone}","${q.service}","${q.postal_code}","${q.message || ''}","","",""\n`
-    }
-  }
-
-  return new Response(csv, {
-    headers: {
-      'Content-Type': 'text/csv',
-      'Content-Disposition': 'attachment; filename="quotes.csv"',
-    },
-  })
+  return NextResponse.json(data);
 }
