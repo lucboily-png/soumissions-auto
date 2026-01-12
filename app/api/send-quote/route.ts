@@ -1,102 +1,80 @@
-import { NextResponse } from 'next/server'
-import { Resend } from 'resend'
-import { createClient } from '@supabase/supabase-js'
-import { garages } from '@/data/garages'
-
-const resend = new Resend(process.env.RESEND_API_KEY!)
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-
-function normalizePostalCode(code: string) {
-  return code
-    .toUpperCase()
-    .replace(/[^A-Z0-9]/g, '')
-    .substring(0, 3)
-}
+import { NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import { Resend } from 'resend';
 
 export async function POST(req: Request) {
-  try {
-    const body = await req.json()
+  // 🔐 ENV VARS (runtime only)
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_KEY;
+  const resendKey = process.env.RESEND_API_KEY;
 
+  if (!supabaseUrl || !supabaseKey || !resendKey) {
+    return NextResponse.json(
+      { error: 'Missing environment variables' },
+      { status: 500 }
+    );
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseKey);
+  const resend = new Resend(resendKey);
+
+  try {
+    const body = await req.json();
+
+    // 👉 adapte les champs si nécessaire
     const {
-      firstName,
-      lastName,
+      name,
       email,
       phone,
       service,
-      brand,
-      model,
-      year,
       message,
-      postalCode,
-      preferredContact,
-      lang,
-    } = body
+      preferred_contact,
+      language,
+    } = body;
 
-    const isEN = lang === 'en'
-    const postalPrefix = normalizePostalCode(postalCode)
+    // 1️⃣ Enregistrer dans Supabase
+    const { error: dbError } = await supabase
+      .from('quotes')
+      .insert([
+        {
+          name,
+          email,
+          phone,
+          service,
+          message,
+          preferred_contact,
+          language,
+        },
+      ]);
 
-    const matchingGarages = garages.filter((g) =>
-      g.postalCodes.includes(postalPrefix)
-    )
-
-    if (matchingGarages.length === 0) {
+    if (dbError) {
       return NextResponse.json(
-        { message: isEN ? 'No garage found' : 'Aucun garage trouvé' },
-        { status: 404 }
-      )
+        { error: dbError.message },
+        { status: 500 }
+      );
     }
 
-    for (const garage of matchingGarages) {
-      // 📧 Envoi email
-      const emailResult = await resend.emails.send({
-        from: process.env.EMAIL_FROM!,
-        to: garage.email,
-        subject: isEN
-          ? 'New quote request'
-          : 'Nouvelle demande de soumission',
-        html: `
-          <h2>Nouvelle demande</h2>
-          <p><strong>Client:</strong> ${firstName} ${lastName}</p>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Téléphone:</strong> ${phone}</p>
-          <p><strong>Service:</strong> ${service}</p>
-          <p><strong>Véhicule:</strong> ${brand} ${model} ${year}</p>
-          <p><strong>Code postal:</strong> ${postalPrefix}</p>
-          ${message ? `<p><strong>Message:</strong><br/>${message}</p>` : ''}
-        `,
-      })
+    // 2️⃣ Envoyer email
+    await resend.emails.send({
+      from: 'Soumissions Auto <no-reply@soumissions-auto.ca>',
+      to: ['luc.boily@hotmail.com'],
+      subject: 'Nouvelle demande de soumission',
+      html: `
+        <h2>Nouvelle demande</h2>
+        <p><strong>Nom:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Téléphone:</strong> ${phone}</p>
+        <p><strong>Service:</strong> ${service}</p>
+        <p><strong>Message:</strong><br/>${message}</p>
+      `,
+    });
 
-      // 🧾 Log Supabase
-      await supabase.from('quote_logs').insert({
-        first_name: firstName,
-        last_name: lastName,
-        email,
-        phone,
-        service,
-        brand,
-        model,
-        year,
-        message,
-        postal_code: postalPrefix,
-        garage_name: garage.name,
-        garage_email: garage.email,
-        status: emailResult.error ? 'error' : 'sent',
-      })
-    }
-
-    return NextResponse.json(
-      { success: true, garages: matchingGarages.length },
-      { status: 200 }
-    )
+    return NextResponse.json({ success: true });
   } catch (err) {
-    console.error('SEND QUOTE ERROR:', err)
+    console.error(err);
     return NextResponse.json(
       { error: 'Server error' },
       { status: 500 }
-    )
+    );
   }
 }
