@@ -1,6 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
 
-// Client Supabase côté serveur (clé sécurisée)
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -20,6 +19,7 @@ type Quote = {
 type Dispatch = {
   id: string
   garage_email: string
+  garage_name?: string
   status: 'sent' | 'failed'
   error_message?: string
   sent_at: string
@@ -103,8 +103,8 @@ export default async function AdminDashboard() {
                 <ul>
                   {q.dispatches.map((d: Dispatch) => (
                     <li key={d.id}>
-                      {d.garage_email} - {d.status.toUpperCase()}{' '}
-                      {d.status === 'failed' ? `(${d.error_message})` : ''}
+                      {d.garage_name || 'Nom indisponible'} ({d.garage_email}) - {d.status.toUpperCase()}
+                      {d.status === 'failed' ? ` (${d.error_message})` : ''}
                     </li>
                   ))}
                 </ul>

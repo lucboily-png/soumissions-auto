@@ -1,23 +1,26 @@
-// /app/api/send-quote/route.ts
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
 import { garages } from '@/data/garages'
 
 const resend = new Resend(process.env.RESEND_API_KEY!)
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-// Normalise le code postal (ex: "J9H 1A2" → "J9H")
 function normalizePostalCode(code: string) {
-  return code.toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 3)
+  return code
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, '')
+    .substring(0, 3)
 }
 
 export async function POST(req: Request) {
   try {
     const body = await req.json()
+
     const {
       firstName,
       lastName,
@@ -34,58 +37,41 @@ export async function POST(req: Request) {
     } = body
 
     const isEN = lang === 'en'
-
-    // Validation stricte
-    if (!firstName || !lastName || !email || !phone || !service || !brand || !model || !year || !postalCode || !preferredContact) {
-      return NextResponse.json({ error: isEN ? 'Missing data' : 'Données manquantes' }, { status: 400 })
-    }
-
     const postalPrefix = normalizePostalCode(postalCode)
 
-    // Cherche les garages correspondant
-    const matchingGarages = garages.filter((g) => g.postalCodes.includes(postalPrefix))
+    const matchingGarages = garages.filter((g) =>
+      g.postalCodes.includes(postalPrefix)
+    )
 
     if (matchingGarages.length === 0) {
-      return NextResponse.json({ message: isEN ? 'No garage found near you' : 'Aucun garage trouvé' }, { status: 404 })
+      return NextResponse.json(
+        { message: isEN ? 'No garage found' : 'Aucun garage trouvé' },
+        { status: 404 }
+      )
     }
 
-    // Envoi des emails aux garages
     for (const garage of matchingGarages) {
-      try {
-        console.log('Sending email to:', garage.email)
+      // 📧 Envoi email
+      const emailResult = await resend.emails.send({
+        from: process.env.EMAIL_FROM!,
+        to: garage.email,
+        subject: isEN
+          ? 'New quote request'
+          : 'Nouvelle demande de soumission',
+        html: `
+          <h2>Nouvelle demande</h2>
+          <p><strong>Client:</strong> ${firstName} ${lastName}</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Téléphone:</strong> ${phone}</p>
+          <p><strong>Service:</strong> ${service}</p>
+          <p><strong>Véhicule:</strong> ${brand} ${model} ${year}</p>
+          <p><strong>Code postal:</strong> ${postalPrefix}</p>
+          ${message ? `<p><strong>Message:</strong><br/>${message}</p>` : ''}
+        `,
+      })
 
-        const result = await resend.emails.send({
-          from: process.env.EMAIL_FROM!,
-          to: garage.email,
-          subject: isEN ? 'New quote request' : 'Nouvelle demande de soumission',
-          html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;">
-              <img src="${process.env.NEXT_PUBLIC_SITE_URL}/images/logo.png" alt="Logo" style="max-width: 180px; margin-bottom: 20px;" />
-              <h2>${isEN ? 'New quote request' : 'Nouvelle demande de soumission'}</h2>
-              <p><strong>${isEN ? 'Client' : 'Client'} :</strong> ${firstName} ${lastName}</p>
-              <p><strong>Email :</strong> ${email}</p>
-              <p><strong>${isEN ? 'Phone' : 'Téléphone'} :</strong> ${phone}</p>
-              <p><strong>${isEN ? 'Preferred contact' : 'Communication préférée'} :</strong> ${preferredContact}</p>
-              <p><strong>${isEN ? 'Service' : 'Service'} :</strong> ${service}</p>
-              <p><strong>${isEN ? 'Vehicle' : 'Véhicule'} :</strong> ${brand} ${model} ${year}</p>
-              <p><strong>${isEN ? 'Postal code' : 'Code postal'} :</strong> ${postalPrefix}</p>
-              ${message ? `<p><strong>Message :</strong><br/>${message}</p>` : ''}
-              <hr />
-              <p style="font-size: 12px; color: #666;">Auto quote platform</p>
-            </div>
-          `,
-        })
-
-        console.log('Resend result:', result)
-      } catch (err) {
-        console.error('EMAIL ERROR:', err)
-      }
-    }
-
-    // Sauvegarde dans Supabase
-    const { error: supabaseError } = await supabase.from('quote_logs').insert(
-      matchingGarages.map((garage) => ({
-        date: new Date().toISOString(),
+      // 🧾 Log Supabase
+      await supabase.from('quote_logs').insert({
         first_name: firstName,
         last_name: lastName,
         email,
@@ -98,18 +84,19 @@ export async function POST(req: Request) {
         postal_code: postalPrefix,
         garage_name: garage.name,
         garage_email: garage.email,
-        status: 'sent',
-      }))
-    )
-
-    if (supabaseError) {
-      console.error('Supabase insert error:', supabaseError)
-      return NextResponse.json({ error: 'Database error', details: supabaseError }, { status: 500 })
+        status: emailResult.error ? 'error' : 'sent',
+      })
     }
 
-    return NextResponse.json({ success: true, garagesSent: matchingGarages.length }, { status: 200 })
+    return NextResponse.json(
+      { success: true, garages: matchingGarages.length },
+      { status: 200 }
+    )
   } catch (err) {
-    console.error('SERVER ERROR:', err)
-    return NextResponse.json({ error: 'Server error', details: err }, { status: 500 })
+    console.error('SEND QUOTE ERROR:', err)
+    return NextResponse.json(
+      { error: 'Server error' },
+      { status: 500 }
+    )
   }
 }
