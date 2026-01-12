@@ -75,9 +75,9 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
   
 
   return (
-    <div className="flex justify-center items-start min-h-screen bg-gray-50 p-4">
-  <div className="w-full max-w-md">
-
+    <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-3xl">
+	
+	<div className="flex justify-center mb-6">
   <Image
     src="/images/logo.png"
     alt="Soumissions Auto"
