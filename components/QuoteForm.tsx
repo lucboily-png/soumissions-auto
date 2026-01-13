@@ -103,11 +103,14 @@ export default function QuoteForm() {
 
           <select name="service" required className="w-full border p-3 rounded-lg bg-white">
             <option value="">Type de service</option>
-            <option value="oil_change">Changement d’huile</option>
-            <option value="tires">Changement de pneus</option>
-            <option value="brakes">Freins</option>
-            <option value="diagnostic">Diagnostic moteur</option>
-            <option value="general">Entretien général</option>
+			<option value="oil_change">Changement d’huile</option>
+			<option value="tire_change">Changement de pneus</option>
+			<option value="brakes">Freins</option>
+			<option value="suspension">Suspension</option>
+			<option value="alignment">Alignement</option>
+			<option value="engine_diagnostic">Diagnostic moteur</option>
+			<option value="maintenance">Entretien général</option>
+			<option value="other">Autre</option>
           </select>
 
           <input name="brand" required placeholder="Marque" className="w-full border p-3 rounded-lg" />
