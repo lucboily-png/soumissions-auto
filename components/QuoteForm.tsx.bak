@@ -3,62 +3,102 @@
 import { useRef, useState } from 'react'
 import Image from 'next/image'
 
+type Lang = 'fr' | 'en'
 type Status = 'idle' | 'success' | 'notfound' | 'error'
 
-export default function QuoteForm() {
+export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
   const formRef = useRef<HTMLFormElement>(null)
   const [status, setStatus] = useState<Status>('idle')
   const [loading, setLoading] = useState(false)
 
-  function formatPhone(value: string) {
-    const digits = value.replace(/\D/g, '').slice(0, 10)
-    const parts = digits.match(/^(\d{0,3})(\d{0,3})(\d{0,4})$/)
-    if (!parts) return value
-    return [
-      parts[1] && `(${parts[1]})`,
-      parts[2] && `-${parts[2]}`,
-      parts[3] && `-${parts[3]}`,
-    ].join('')
-  }
+  const t = {
+    fr: {
+      intro: "Complétez ce formulaire et obtenez plusieurs soumissions de garages près de chez vous prêts à effectuer la réparation de votre véhicule.",
+      title: 'Demande de soumission – Réparation automobile',
+      placeholders: {
+        firstName: 'Prénom',
+        lastName: 'Nom',
+        email: 'Email',
+        phone: 'Téléphone',
+        postalCode: 'Code postal',
+        service: 'Type de service',
+        brand: 'Marque',
+        model: 'Modèle',
+        year: 'Année',
+        preferredContact: 'Moyen de communication préféré',
+        message: 'Message (optionnel)',
+      },
+      success: 'Votre demande a été envoyée avec succès.',
+      notfound: 'Aucun garage trouvé près de chez vous.',
+      error: 'Une erreur est survenue. Veuillez réessayer.',
+      submit: 'Envoyer la demande',
+    },
+    en: {
+      intro: "Fill out this form and get multiple quotes from local garages ready to repair your vehicle.",
+      title: 'Auto Repair Quote Request',
+      placeholders: {
+        firstName: 'First name',
+        lastName: 'Last name',
+        email: 'Email',
+        phone: 'Phone',
+        postalCode: 'Postal code',
+        service: 'Service type',
+        brand: 'Brand',
+        model: 'Model',
+        year: 'Year',
+        preferredContact: 'Preferred contact method',
+        message: 'Message (optional)',
+      },
+      success: 'Your request has been sent successfully.',
+      notfound: 'No garage found near you.',
+      error: 'An error occurred. Please try again.',
+      submit: 'Submit request',
+    },
+  }[lang]
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setLoading(true)
     setStatus('idle')
 
-    const formData = new FormData(e.currentTarget)
-
-    const payload = {
-      firstName: String(formData.get('firstName')),
-      lastName: String(formData.get('lastName')),
-      email: String(formData.get('email')),
-      phone: String(formData.get('phone')),
-      postalCode: String(formData.get('postalCode')),
-      service: String(formData.get('service')),
-      brand: String(formData.get('brand')),
-      model: String(formData.get('model')),
-      year: String(formData.get('year')),
-      preferredContact: String(formData.get('preferredContact')),
-      message: String(formData.get('message') || ''),
-      lang: 'fr',
-    }
-
     try {
+      const formData = new FormData(e.currentTarget)
+
+      // Normalisation téléphone: (XXX)-XXX-XXXX
+      let phone = String(formData.get('phone') || '')
+      phone = phone.replace(/\D/g, '')
+      if (phone.length === 10) {
+        phone = `(${phone.slice(0,3)})-${phone.slice(3,6)}-${phone.slice(6,10)}`
+      }
+
+      const payload = {
+        firstName: String(formData.get('firstName')),
+        lastName: String(formData.get('lastName')),
+        email: String(formData.get('email')),
+        phone,
+        service: String(formData.get('service')),
+        brand: String(formData.get('brand')),
+        model: String(formData.get('model')),
+        year: String(formData.get('year')),
+        message: String(formData.get('message') || ''),
+        postalCode: String(formData.get('postalCode')),
+        preferredContact: String(formData.get('preferredContact')),
+        lang,
+      }
+
       const res = await fetch('/api/send-quote', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })
 
-      if (res.status === 200) {
-        setStatus('success')
-        formRef.current?.reset()
-      } else if (res.status === 404) {
-        setStatus('notfound')
-      } else {
-        setStatus('error')
-      }
-    } catch {
+      if (res.status === 200) setStatus('success')
+      else if (res.status === 404) setStatus('notfound')
+      else setStatus('error')
+
+      if (res.status === 200) formRef.current?.reset()
+    } catch (err) {
+      console.error('Submit error:', err)
       setStatus('error')
     } finally {
       setLoading(false)
@@ -66,99 +106,64 @@ export default function QuoteForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      {/* TEXTE INTRO */}
-      <h1 className="text-3xl font-bold text-center mb-4 max-w-2xl mx-auto">
-        Complétez ce formulaire et obtenez plusieurs soumissions de garages près
-        de chez vous prêts à effectuer la réparation de votre véhicule.
-      </h1>
+    <div className="flex justify-center items-start min-h-screen bg-gray-50 p-4">
+      <div className="w-full max-w-lg">
+        {/* Intro */}
+        <h1 className="text-xl font-semibold text-center mb-4">{t.intro}</h1>
 
-      {/* LOGO */}
-      <div className="flex justify-center mb-6">
-        <Image
-          src="/images/logo.png"
-          alt="Soumissions Auto"
-          width={220}
-          height={90}
-          priority
-        />
-      </div>
+        {/* Logo */}
+        <div className="flex justify-center mb-4">
+          <Image
+            src="/images/logo.png"
+            alt="Soumissions Auto"
+            width={220}
+            height={90}
+            priority
+          />
+        </div>
 
-      {/* FORMULAIRE */}
-      <div className="max-w-lg mx-auto bg-white p-6 rounded-xl shadow">
-        {status === 'success' && (
-          <div className="mb-4 bg-green-100 text-green-800 p-3 rounded text-center">
-            Votre demande a été envoyée avec succès.
-          </div>
-        )}
+        {/* Form title */}
+        <h2 className="text-2xl font-bold mb-6 text-center">{t.title}</h2>
 
-        {status === 'notfound' && (
-          <div className="mb-4 bg-red-100 text-red-800 p-3 rounded text-center">
-            Aucun garage trouvé près de chez vous.
-          </div>
-        )}
-
-        {status === 'error' && (
-          <div className="mb-4 bg-yellow-100 text-yellow-800 p-3 rounded text-center">
-            Une erreur est survenue. Veuillez réessayer.
-          </div>
-        )}
+        {/* Status messages */}
+        {status === 'success' && <div className="mb-6 rounded-lg bg-green-100 text-green-800 p-4 text-center font-medium">{t.success}</div>}
+        {status === 'notfound' && <div className="mb-6 rounded-lg bg-red-100 text-red-800 p-4 text-center font-medium">{t.notfound}</div>}
+        {status === 'error' && <div className="mb-6 rounded-lg bg-yellow-100 text-yellow-800 p-4 text-center font-medium">{t.error}</div>}
 
         <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
-          <input name="firstName" required placeholder="Prénom"
-            className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-gray-400 focus:outline-none" />
+          <input name="firstName" required placeholder={t.placeholders.firstName} className="w-full border rounded-lg p-3 focus:ring-0 focus:border-gray-400" />
+          <input name="lastName" required placeholder={t.placeholders.lastName} className="w-full border rounded-lg p-3 focus:ring-0 focus:border-gray-400" />
+          <input type="email" name="email" required placeholder={t.placeholders.email} className="w-full border rounded-lg p-3 focus:ring-0 focus:border-gray-400" />
+          <input type="tel" name="phone" required placeholder={t.placeholders.phone} className="w-full border rounded-lg p-3 focus:ring-0 focus:border-gray-400" />
+          <input name="postalCode" required placeholder={t.placeholders.postalCode} className="w-full border rounded-lg p-3 focus:ring-0 focus:border-gray-400" />
 
-          <input name="lastName" required placeholder="Nom"
-            className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-gray-400 focus:outline-none" />
-
-          <input type="email" name="email" required placeholder="Email"
-            className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-gray-400 focus:outline-none" />
-
-          <input
-            name="phone"
-            required
-            placeholder="Téléphone"
-            onChange={(e) => (e.target.value = formatPhone(e.target.value))}
-            className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-gray-400 focus:outline-none"
-          />
-
-          <input name="postalCode" required placeholder="Code postal"
-            className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-gray-400 focus:outline-none" />
-
-          <select name="service" required
-            className="w-full border rounded-lg p-3 bg-white focus:ring-2 focus:ring-gray-400 focus:outline-none">
-            <option value="">Type de service</option>
+          <select name="service" required className="w-full border rounded-lg p-3 bg-white focus:ring-0 focus:border-gray-400">
+            <option value="">{t.placeholders.service}</option>
             <option>Changement d’huile</option>
             <option>Changement de pneus</option>
             <option>Freins</option>
+            <option>Suspension</option>
+            <option>Alignement</option>
             <option>Diagnostic moteur</option>
             <option>Entretien général</option>
             <option>Autre</option>
           </select>
 
-          <input name="brand" required placeholder="Marque"
-            className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-gray-400 focus:outline-none" />
+          <input name="brand" required placeholder={t.placeholders.brand} className="w-full border rounded-lg p-3 focus:ring-0 focus:border-gray-400" />
+          <input name="model" required placeholder={t.placeholders.model} className="w-full border rounded-lg p-3 focus:ring-0 focus:border-gray-400" />
+          <input name="year" required placeholder={t.placeholders.year} className="w-full border rounded-lg p-3 focus:ring-0 focus:border-gray-400" />
 
-          <input name="model" required placeholder="Modèle"
-            className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-gray-400 focus:outline-none" />
-
-          <input name="year" required placeholder="Année"
-            className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-gray-400 focus:outline-none" />
-
-          <select name="preferredContact" required
-            className="w-full border rounded-lg p-3 bg-white focus:ring-2 focus:ring-gray-400 focus:outline-none">
-            <option value="">Moyen de communication préféré</option>
+          <select name="preferredContact" required className="w-full border rounded-lg p-3 bg-white focus:ring-0 focus:border-gray-400">
+            <option value="">{t.placeholders.preferredContact}</option>
             <option>Courriel</option>
             <option>Téléphone</option>
             <option>Texto</option>
           </select>
 
-          <textarea name="message" placeholder="Message (optionnel)"
-            className="w-full border rounded-lg p-3 h-28 focus:ring-2 focus:ring-gray-400 focus:outline-none" />
+          <textarea name="message" placeholder={t.placeholders.message} className="w-full border rounded-lg p-3 h-28 focus:ring-0 focus:border-gray-400" />
 
-          <button disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg">
-            {loading ? '...' : 'Envoyer la demande'}
+          <button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold py-3 rounded-lg text-lg">
+            {loading ? '...' : t.submit}
           </button>
         </form>
       </div>
