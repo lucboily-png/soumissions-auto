@@ -1,10 +1,6 @@
 // /app/en/page.tsx
-import QuoteFormEN from '@/components/QuoteFormEN'
+import QuoteForm from '@/components/QuoteForm'
 
 export default function Page() {
-  return (
-    <div className="p-4">
-      <QuoteFormEN />
-    </div>
-  )
+  return <QuoteForm lang="en" />
 }
