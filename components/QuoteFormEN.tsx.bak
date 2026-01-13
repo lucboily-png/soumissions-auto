@@ -1,117 +1,129 @@
-import { useState } from 'react';
+'use client'
+
+import { useRef, useState } from 'react'
+import Image from 'next/image'
+
+type Status = 'idle' | 'success' | 'notfound' | 'error'
 
 export default function QuoteFormEN() {
-  const [form, setForm] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    postalCode: '',
-    year: '',
-    brand: '',
-    model: '',
-    serviceType: '',
-    urgency: '',
-    description: '',
-    preferred_contact: 'email',
-  });
+  const formRef = useRef<HTMLFormElement>(null)
+  const [status, setStatus] = useState<Status>('idle')
+  const [loading, setLoading] = useState(false)
 
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const t = {
+    title: 'Auto Repair Quote Request',
+    success: 'Your request has been sent successfully.',
+    notfound: 'No garage found near you.',
+    error: 'An error occurred. Please try again.',
+    submit: 'Submit request',
+  }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage('');
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setLoading(true)
+    setStatus('idle')
 
     try {
+      const formData = new FormData(e.currentTarget)
+
+      const payload = {
+        firstName: String(formData.get('firstName')),
+        lastName: String(formData.get('lastName')),
+        email: String(formData.get('email')),
+        phone: String(formData.get('phone')),
+        postalCode: String(formData.get('postalCode')),
+        service: String(formData.get('service')),
+        brand: String(formData.get('brand')),
+        model: String(formData.get('model')),
+        year: String(formData.get('year')),
+        preferredContact: String(formData.get('preferredContact')),
+        message: String(formData.get('message') || ''),
+        lang: 'en',
+      }
+
       const res = await fetch('/api/send-quote', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, language: 'EN' }),
-      });
+        body: JSON.stringify(payload),
+      })
 
-      const data = await res.json();
-      if (data.success) setMessage('Your request has been sent successfully!');
-      else setMessage(data.message || 'An error occurred. Please try again.');
+      if (res.status === 200) {
+        setStatus('success')
+        formRef.current?.reset()
+      } else if (res.status === 404) {
+        setStatus('notfound')
+      } else {
+        setStatus('error')
+      }
     } catch (err) {
-      setMessage('An error occurred. Please try again.');
+      console.error(err)
+      setStatus('error')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
-    <div className="flex justify-center items-start min-h-screen bg-gray-50 p-4">
-      <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold mb-4">Auto Repair Quote Request</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block mb-1">First Name</label>
-            <input type="text" name="firstName" value={form.firstName} onChange={handleChange}
-              className="w-full border px-3 py-2 rounded" required />
+    <div className="flex justify-center min-h-screen bg-gray-50 p-4">
+      <div className="w-full max-w-md">
+        <div className="flex justify-center mb-4">
+          <Image
+            src="/images/logo.png"
+            alt="Soumissions Auto"
+            width={220}
+            height={90}
+            priority
+          />
+        </div>
+
+        <h1 className="text-3xl font-bold mb-6 text-center">{t.title}</h1>
+
+        {status !== 'idle' && (
+          <div className="mb-6 text-center font-medium">
+            {status === 'success' && <div className="bg-green-100 text-green-800 p-4 rounded-lg">{t.success}</div>}
+            {status === 'notfound' && <div className="bg-red-100 text-red-800 p-4 rounded-lg">{t.notfound}</div>}
+            {status === 'error' && <div className="bg-yellow-100 text-yellow-800 p-4 rounded-lg">{t.error}</div>}
           </div>
-          <div>
-            <label className="block mb-1">Last Name</label>
-            <input type="text" name="lastName" value={form.lastName} onChange={handleChange}
-              className="w-full border px-3 py-2 rounded" required />
-          </div>
-          <div>
-            <label className="block mb-1">Email</label>
-            <input type="email" name="email" value={form.email} onChange={handleChange}
-              className="w-full border px-3 py-2 rounded" required />
-          </div>
-          <div>
-            <label className="block mb-1">Phone</label>
-            <input type="text" name="phone" value={form.phone} onChange={handleChange}
-              className="w-full border px-3 py-2 rounded" />
-          </div>
-          <div>
-            <label className="block mb-1">Postal Code</label>
-            <input type="text" name="postalCode" value={form.postalCode} onChange={handleChange}
-              className="w-full border px-3 py-2 rounded" required />
-          </div>
-          <div>
-            <label className="block mb-1">Vehicle Year</label>
-            <input type="text" name="year" value={form.year} onChange={handleChange}
-              className="w-full border px-3 py-2 rounded" />
-          </div>
-          <div>
-            <label className="block mb-1">Brand</label>
-            <input type="text" name="brand" value={form.brand} onChange={handleChange}
-              className="w-full border px-3 py-2 rounded" />
-          </div>
-          <div>
-            <label className="block mb-1">Model</label>
-            <input type="text" name="model" value={form.model} onChange={handleChange}
-              className="w-full border px-3 py-2 rounded" />
-          </div>
-          <div>
-            <label className="block mb-1">Service Requested</label>
-            <input type="text" name="serviceType" value={form.serviceType} onChange={handleChange}
-              className="w-full border px-3 py-2 rounded" />
-          </div>
-          <div>
-            <label className="block mb-1">Urgency</label>
-            <input type="text" name="urgency" value={form.urgency} onChange={handleChange}
-              className="w-full border px-3 py-2 rounded" />
-          </div>
-          <div>
-            <label className="block mb-1">Description</label>
-            <textarea name="description" value={form.description} onChange={handleChange}
-              className="w-full border px-3 py-2 rounded" rows={3}></textarea>
-          </div>
-          <button type="submit" disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
-            {loading ? 'Sending...' : 'Send Request'}
+        )}
+
+        <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
+          <input name="firstName" required placeholder="First name" className="w-full border p-3 rounded-lg" />
+          <input name="lastName" required placeholder="Last name" className="w-full border p-3 rounded-lg" />
+          <input type="email" name="email" required placeholder="Email" className="w-full border p-3 rounded-lg" />
+          <input name="phone" required placeholder="Phone" className="w-full border p-3 rounded-lg" />
+          <input name="postalCode" required placeholder="Postal code" className="w-full border p-3 rounded-lg" />
+
+          <select name="service" required className="w-full border p-3 rounded-lg bg-white">
+            <option value="">Service type</option>
+            <option value="oil_change">Oil change</option>
+            <option value="tires">Tires</option>
+            <option value="brakes">Brakes</option>
+            <option value="diagnostic">Engine diagnostic</option>
+            <option value="general">General maintenance</option>
+          </select>
+
+          <input name="brand" required placeholder="Brand" className="w-full border p-3 rounded-lg" />
+          <input name="model" required placeholder="Model" className="w-full border p-3 rounded-lg" />
+          <input name="year" required placeholder="Year" className="w-full border p-3 rounded-lg" />
+
+          <select name="preferredContact" required className="w-full border p-3 rounded-lg bg-white">
+            <option value="">Preferred contact method</option>
+            <option value="email">Email</option>
+            <option value="phone">Phone</option>
+            <option value="text">Text message</option>
+          </select>
+
+          <textarea name="message" placeholder="Message (optional)" className="w-full border p-3 rounded-lg h-28" />
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg"
+          >
+            {loading ? '...' : t.submit}
           </button>
         </form>
-        {message && <p className="mt-4 text-center text-red-600">{message}</p>}
       </div>
     </div>
-  );
+  )
 }
