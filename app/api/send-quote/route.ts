@@ -37,7 +37,7 @@ export async function POST(req: Request) {
     if (matchedGarages.length === 0) {
       return NextResponse.json(
         { error: 'Aucun garage trouvé pour ce code postal.' },
-        { status: 400 }
+        { status: 404 }
       )
     }
 
