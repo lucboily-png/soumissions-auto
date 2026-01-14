@@ -144,8 +144,8 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
         <Image
           src="/images/logo.png"
           alt="Soumissions Auto"
-          width={220}
-          height={90}
+          width={250}
+          height={110}
           priority
         />
       </div>
@@ -174,7 +174,7 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
       <form
         ref={formRef}
         onSubmit={handleSubmit}
-        className="w-full max-w-lg space-y-4 bg-white p-6 rounded-lg shadow-md"
+        className="w-full max-w-2xl space-y-4 bg-white p-6 rounded-lg shadow-md"
       >
         <input
           name="firstName"
