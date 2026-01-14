@@ -2,21 +2,21 @@
   {
     "name": "Garage du Coin",
     "email": "luc.boily@gmail.com",
-    "postalCode": ["J9H3W3", "J9H4A1"]
+    "postalCodes": ["J9H3W3", "J9H4A1"]
   },
   {
     "name": "Garage Auto Plus",
     "email": "luc.boily@gmail.com",
-    "postalCode": ["J9H3W3", "J9H3W4"]
+    "postalCodes": ["J9H3W3", "J9H3W4"]
   },
   {
     "name": "Garage Rapid",
     "email": "luc.boily@gmail.com",
-    "postalCode": ["J9H3W3", "J9H4A1"]
+    "postalCodes": ["J9H3W3", "J9H4A1"]
   },
   {
     "name": "Garage Express",
     "email": "luc.boily@sto.ca",
-    "postalCode": ["J8H3W3", "J9H4A1"]
+    "postalCodes": ["J8H3W3", "J9H4A1"]
   }
 ]
