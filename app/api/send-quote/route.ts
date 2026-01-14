@@ -24,13 +24,13 @@ export async function POST(req: Request) {
     }
 
     // Normalisation du code postal (FSA)
-    const postalCode = data.postalCode.replace(/\s/g, '').toUpperCase();
+    const postalCode = data.postalCode.replace(/\s/g,'').toUpperCase();
     const fsa = postalCode.substring(0, 3);
 
     // Recherche garages par FSA
     const matchedGarages = garages.filter(g =>
       g.postalCodes
-        .map(pc => pc.replace(/\s/g, '').toUpperCase().substring(0, 3))
+        .map(pc => pc.replace(/\s/g,'').toUpperCase().substring(0, 3).trim())
         .includes(fsa)
     );
 
