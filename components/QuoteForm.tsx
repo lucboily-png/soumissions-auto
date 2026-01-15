@@ -13,9 +13,8 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
 
   const t = {
     fr: {
-      intro:
-        'Remplissez ce formulaire pour recevoir plusieurs soumissions de garages locaux prêts à réparer votre véhicule.',
-      title: 'Demande de soumission – Réparation automobile',
+      <p> intro: 'Remplissez ce formulaire pour recevoir plusieurs soumissions de garages locaux prêts à réparer votre véhicule.',</p>
+      <p> title: 'Demande de soumission – Réparation automobile', </p>
 	  confirmationTitle: '✔️ Demande envoyée avec succès',
 	  confirmationText: 'Votre demande a été transmise à des garages près de chez vous. Un professionnel vous contactera sous peu.',
       success: 'Votre demande a été envoyée avec succès.',
@@ -155,7 +154,7 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
         {t.intro}
       </h1>
 
-      <p></p>
+	  
 
       {/* Titre formulaire */}
       <h2 className="text-3xl font-bold mb-6 text-center">{t.title}</h2>
