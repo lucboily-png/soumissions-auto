@@ -14,7 +14,8 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
   const t = {
     fr: {
       intro: 'Remplissez ce formulaire pour recevoir plusieurs soumissions de garages locaux prêts à réparer votre véhicule.',
-      title: 'Demande de soumission – Réparation automobile',
+      <hr/>
+	  title: 'Demande de soumission – Réparation automobile',
 	  confirmationTitle: '✔️ Demande envoyée avec succès',
 	  confirmationText: 'Votre demande a été transmise à des garages près de chez vous. Un professionnel vous contactera sous peu.',
       success: 'Votre demande a été envoyée avec succès.',
@@ -47,8 +48,8 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
       contactOptions: ['Courriel', 'Téléphone', 'Texto'],
     },
     en: {
-      intro:
-        'Fill out this form to receive multiple quotes from local garages ready to repair your vehicle.',
+      intro: 'Fill out this form to receive multiple quotes from local garages ready to repair your vehicle.',
+	  <hr>
       title: 'Auto Repair Quote Request',
 	  confirmationTitle: '✔️Request successfully sent',
 	  confirmationText: 'Your request has been sent to auto repair shops near you. A professional will contact you shortly.',
@@ -150,14 +151,13 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
       </div>
 	  
       {/* Texte intro */}
-      <p><h1 className="text-xl md:text-2xl font-medium text-center mb-4 max-w-2xl">
+      <h1 className="text-xl md:text-2xl font-medium text-center mb-4 max-w-2xl">
         {t.intro}
-      </h1></p>
+      </h1>
 
-	  <br><br>
 
       {/* Titre formulaire */}
-      <p><h2 className="text-3xl font-bold mb-6 text-center">{t.title}</h2></p>
+      <h2 className="text-3xl font-bold mb-6 text-center">{t.title}</h2>
 
       {/* Status messages */}
       {status === 'success' && (
