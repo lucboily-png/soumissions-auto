@@ -137,7 +137,7 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
   }
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-gray-50 p-4">
+    <div className="flex flex-col items-center min-h-screen bg-gradient-to-r from-blue-50 to-blue-100 p-4">
 	
 	{/* Logo */}
       <div className="flex justify-center mb-6">
@@ -155,7 +155,7 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
         {t.intro}
       </h1>
 
-      
+      <p>
 
       {/* Titre formulaire */}
       <h2 className="text-3xl font-bold mb-6 text-center">{t.title}</h2>
