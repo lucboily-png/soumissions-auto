@@ -128,7 +128,7 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
       <div className="w-full max-w-2x1">
 
         {/* Intro texte */}
-        <h1 className="text-center text-gray-700 text-lg mb-4 font-medium">{t.intro}</h1>
+        <h2 className="text-center text-gray-700 text-lg mb-4 font-medium">{t.intro}</h2>
 
         {/* Logo */}
         <div className="flex justify-center mb-6">
