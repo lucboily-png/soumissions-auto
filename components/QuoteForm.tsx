@@ -14,7 +14,6 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
   const t = {
     fr: {
       intro: 'Remplissez ce formulaire pour recevoir plusieurs soumissions de garages locaux prêts à réparer votre véhicule.',
-      <hr>
 	  title: 'Demande de soumission – Réparation automobile',
 	  confirmationTitle: '✔️ Demande envoyée avec succès',
 	  confirmationText: 'Votre demande a été transmise à des garages près de chez vous. Un professionnel vous contactera sous peu.',
@@ -49,7 +48,6 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
     },
     en: {
       intro: 'Fill out this form to receive multiple quotes from local garages ready to repair your vehicle.',
-	  <hr>
       title: 'Auto Repair Quote Request',
 	  confirmationTitle: '✔️Request successfully sent',
 	  confirmationText: 'Your request has been sent to auto repair shops near you. A professional will contact you shortly.',
@@ -154,7 +152,7 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
       <h1 className="text-xl md:text-2xl font-medium text-center mb-4 max-w-2xl">
         {t.intro}
       </h1>
-
+		<hr className="my-6 border-gray-300" />
 
       {/* Titre formulaire */}
       <h2 className="text-3xl font-bold mb-6 text-center">{t.title}</h2>
