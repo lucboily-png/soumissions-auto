@@ -30,9 +30,15 @@ export async function POST(req: Request) {
     /* -------------------------------
        Match garages
     -------------------------------- */
-    const matchedGarages = garages.filter(g =>
-      g.postalCodes.includes(postalCode)
-    )
+    const postalCode = data.postalCode.replace(/\s/g, '').toUpperCase()
+const fsa = postalCode.substring(0, 3)
+
+// Match par FSA
+const matchedGarages = garages.filter(garage =>
+  garage.postalCodes.some(pc =>
+    pc.replace(/\s/g, '').toUpperCase().substring(0, 3) === fsa
+  )
+)
 
     if (matchedGarages.length === 0) {
       return NextResponse.json(
