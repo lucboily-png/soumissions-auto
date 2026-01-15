@@ -14,7 +14,7 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
   const t = {
     fr: {
       intro:
-        'Complétez ce formulaire et obtenez plusieurs soumissions de garages près de chez vous prêts à effectuer la réparation de votre véhicule.',
+        'Remplissez ce formulaire pour recevoir plusieurs soumissions de garages locaux prêts à réparer votre véhicule.',
       title: 'Demande de soumission – Réparation automobile',
 	  confirmationTitle: '✔️ Demande envoyée avec succès',
 	  confirmationText: 'Votre demande a été transmise à des garages près de chez vous. Un professionnel vous contactera sous peu.',
@@ -190,7 +190,7 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
       <form
         ref={formRef}
         onSubmit={handleSubmit}
-        className="w-full max-w-2xl space-y-4 bg-white p-6 rounded-lg shadow-md"
+        className="w-full max-w-2xl flex justify-center items-start min-h-screen bg-gradient-to-r from-blue-50 to-blue-100 p-4"
       >
         <input
           name="firstName"
