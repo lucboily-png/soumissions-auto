@@ -60,8 +60,6 @@ export async function POST(req: Request) {
         <p><strong>${isEN ? 'Postal Code' : 'Code postal'} :</strong> ${postalCode}</p>
         <p><strong>${isEN ? 'Service' : 'Service'} :</strong> ${data.service}</p>
 
-        <hr />
-
         <p><strong>${isEN ? 'Vehicle' : 'Véhicule'} :</strong></p>
         <ul>
           <li>${isEN ? 'Brand' : 'Marque'} : ${data.brand}</li>

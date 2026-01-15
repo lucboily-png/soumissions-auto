@@ -45,8 +45,8 @@ export async function POST(req: Request) {
        EMAIL CONTENT
     -------------------------------- */
     const subject = isEN
-      ? 'New Auto Quote Request'
-      : 'Nouvelle demande de soumission auto'
+      ? ' 🛠️ New Auto Quote Request'
+      : '🛠️  Nouvelle demande de soumission auto'
 
     const htmlEmail = `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto">
