@@ -152,7 +152,7 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
       <h1 className="text-xl md:text-2xl font-medium text-center mb-4 max-w-2xl">
         {t.intro}
       </h1>
-		<hr/>
+		<hr className="my-4 border-black-300" />
 
       {/* Titre formulaire */}
       <h2 className="text-3xl font-bold mb-6 text-center">{t.title}</h2>
