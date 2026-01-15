@@ -16,6 +16,7 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
       intro:
         'Complétez ce formulaire et obtenez plusieurs soumissions de garages près de chez vous prêts à effectuer la réparation de votre véhicule.',
       title: 'Demande de soumission – Réparation automobile',
+	  confirmationTitle: 'Demande envoyée avec succès',
       success: 'Votre demande a été envoyée avec succès.',
       notfound: 'Aucun garage trouvé près de chez vous.',
       error: 'Une erreur est survenue. Veuillez réessayer.',
@@ -32,7 +33,6 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
         year: 'Année',
         preferredContact: 'Moyen de communication préféré',
         message: 'Message (optionnel)',
-		confirmationTitle: 'Demande envoyée avec succès',
 		confirmationText: 'Votre demande a été transmise à des garages près de chez vous. Un professionnel vous contactera sous peu.',
       },
       serviceOptions: [
@@ -51,6 +51,7 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
       intro:
         'Fill out this form to receive multiple quotes from local garages ready to repair your vehicle.',
       title: 'Auto Repair Quote Request',
+	  confirmationTitle: 'Request successfully sent',
       success: 'Your request has been sent successfully.',
       notfound: 'No garage found near you.',
       error: 'An error occurred. Please try again.',
@@ -67,7 +68,6 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
         year: 'Year',
         preferredContact: 'Preferred Contact Method',
         message: 'Message (optional)',
-		confirmationTitle: 'Request successfully sent',
 		confirmationText: 'Your request has been sent to auto repair shops near you. A professional will contact you shortly.',
       },
       serviceOptions: [
