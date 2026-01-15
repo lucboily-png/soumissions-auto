@@ -150,14 +150,13 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
       </div>
 	  
       {/* Texte intro */}
-      <p><h1 className="text-xl md:text-2xl font-medium text-center mb-4 max-w-2xl">
+      <h1 className="text-xl md:text-2xl font-medium text-center mb-4 max-w-2xl">
         {t.intro}
-      </h1></p>
+      </h1>
 
-	  <br><br>
 
       {/* Titre formulaire */}
-      <p><h2 className="text-3xl font-bold mb-6 text-center">{t.title}</h2></p>
+      <h2 className="text-3xl font-bold mb-6 text-center">{t.title}</h2>
 
       {/* Status messages */}
       {status === 'success' && (
