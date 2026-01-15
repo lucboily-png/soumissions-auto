@@ -137,6 +137,14 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
   }
 
   return (
+		<Image
+          src="/images/logo.png"
+          alt="Soumissions Auto"
+          width={250}
+          height={110}
+          priority
+        />
+		
     <div className="flex flex-col items-center min-h-screen bg-gray-50 p-4">
       {/* Texte intro */}
       <h1 className="text-xl md:text-2xl font-medium text-center mb-4 max-w-2xl">
@@ -145,13 +153,7 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
 
       {/* Logo */}
       <div className="flex justify-center mb-6">
-        <Image
-          src="/images/logo.png"
-          alt="Soumissions Auto"
-          width={250}
-          height={110}
-          priority
-        />
+        
       </div>
 
       {/* Titre formulaire */}
@@ -190,7 +192,7 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
       <form
         ref={formRef}
         onSubmit={handleSubmit}
-        className="w-full max-w-2xl flex justify-center items-start min-h-screen bg-gradient-to-r from-blue-50 to-blue-100 p-4"
+        className="w-full max-w-2xl space-y-4 bg-white p-6 rounded-lg shadow-md"
       >
         <input
           name="firstName"
