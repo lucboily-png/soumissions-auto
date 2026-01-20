@@ -289,6 +289,10 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
           {loading ? '...' : t.submit}
         </button>
       </form>
+	  
+	  <p className="mt-12 text-center text-xs uppercase tracking-wide text-gray-400">
+  Soumissions-Auto.ca • 2026
+</p>
 	  )}
     </div>
   )
