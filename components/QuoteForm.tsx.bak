@@ -40,6 +40,9 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
         'Freins',
         'Suspension',
         'Alignement',
+		'Silencieux',
+		'Pare-brise',
+		'Esthétique/peinture',
         'Diagnostic moteur',
         'Entretien général',
         'Autre',
@@ -74,6 +77,9 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
         'Brakes',
         'Suspension',
         'Alignment',
+		'Muffler',
+		'windshield',
+		'Detailing / Body paint',
         'Engine Diagnostic',
         'General Maintenance',
         'Other',
@@ -142,8 +148,8 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
         <Image
           src="/images/logo.png"
           alt="Soumissions Auto"
-          width={250}
-          height={110}
+          width={310}
+          height={170}
           priority
         />
       </div>

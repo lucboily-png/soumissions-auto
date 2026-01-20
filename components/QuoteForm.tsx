@@ -13,7 +13,7 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
 
   const t = {
     fr: {
-      intro: 'Complétez ce formulaire et recevez rapidement plusieurs soumissions de garages locaux prêts à réparer votre véhicule.',
+      intro: 'Complétez ce formulaire et recevez rapidement des soumissions de garages locaux prêts à réparer votre véhicule.',
 	  title: 'Demande de soumission – Réparation automobile',
 	  confirmationTitle: '✔️ Demande envoyée avec succès',
 	  confirmationText: 'Votre demande a été transmise à des garages près de chez vous. Un professionnel vous contactera sous peu.',
@@ -40,6 +40,9 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
         'Freins',
         'Suspension',
         'Alignement',
+		'Silencieux',
+		'Pare-brise',
+		'Esthétique/peinture',
         'Diagnostic moteur',
         'Entretien général',
         'Autre',
@@ -74,6 +77,9 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
         'Brakes',
         'Suspension',
         'Alignment',
+		'Muffler',
+		'windshield',
+		'Detailing / Body paint',
         'Engine Diagnostic',
         'General Maintenance',
         'Other',
@@ -142,8 +148,8 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
         <Image
           src="/images/logo.png"
           alt="Soumissions Auto"
-          width={290}
-          height={150}
+          width={310}
+          height={170}
           priority
         />
       </div>
