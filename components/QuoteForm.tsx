@@ -13,7 +13,7 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
 
   const t = {
     fr: {
-      intro: 'Complétez ce formulaire et recevez rapidement des soumissions de garages locaux prêts à réparer votre véhicule.',
+      intro: 'Remplissez ce formulaire et recevez rapidement des soumissions de garages locaux prêts à réparer votre véhicule.',
 	  title: 'Demande de soumission – Réparation automobile',
 	  confirmationTitle: '✔️ Demande envoyée avec succès',
 	  confirmationText: 'Votre demande a été transmise à des garages près de chez vous. Un professionnel vous contactera sous peu.',
