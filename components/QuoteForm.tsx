@@ -194,11 +194,13 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
   </div>
 )}
 
+{/*
 {views !== null && (
   <p className="mb-4 text-center text-sm text-gray-600">
-    Déjà <strong>{views.toLocaleString()}</strong> automobilistes ont consulté ce formulaire
+    Déjà <strong>{views}</strong> automobilistes ont consulté ce formulaire
   </p>
 )}
+*/}
 
       {status === 'notfound' && (
         <div className="mb-6 rounded-lg bg-red-100 text-red-800 p-4 text-center font-medium">
