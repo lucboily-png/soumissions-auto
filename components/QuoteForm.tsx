@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react'
 import Image from 'next/image'
+import { useEffect, useState } from 'react'
 
 type Lang = 'fr' | 'en'
 type Status = 'idle' | 'success' | 'notfound' | 'error'
@@ -10,6 +11,16 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
   const formRef = useRef<HTMLFormElement>(null)
   const [status, setStatus] = useState<Status>('idle')
   const [loading, setLoading] = useState(false)
+  const [views, setViews] = useState<number | null>(null)
+  useEffect(() => {
+  fetch('/api/page-view', { method: 'POST' })
+    .then(res => res.json())
+    .then(data => {
+      if (data?.views) setViews(data.views)
+    })
+    .catch(() => {})
+}, [])
+
 
   const t = {
     fr: {
@@ -181,6 +192,12 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
       Soumissions Auto
     </p>
   </div>
+)}
+
+{views !== null && (
+  <p className="mb-4 text-center text-sm text-gray-600">
+    Déjà <strong>{views.toLocaleString()}</strong> automobilistes ont consulté ce formulaire
+  </p>
 )}
 
       {status === 'notfound' && (
