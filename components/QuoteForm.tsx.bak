@@ -11,6 +11,7 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
   const [status, setStatus] = useState<Status>('idle')
   const [loading, setLoading] = useState(false)
   const [views, setViews] = useState<number | null>(null)
+  const isEN = lang === 'en'
   
   useEffect(() => {
   fetch('/api/page-view', { method: 'POST' })
