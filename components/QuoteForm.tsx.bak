@@ -172,10 +172,10 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
 	  
 	  <hr className="my-4 border-black-300" />
 	  
-      {/* Texte intro */}
+      {/* Texte intro 
       <h1 className="text-xl md:text-2xl font-medium text-center mb-4 max-w-2xl">
         {t.intro}
-      </h1>
+      </h1>*/}
 		
 
      
