@@ -159,7 +159,7 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
 	{/* Logo */}
       <div className="flex justify-center mb-6">
         <Image
-          src="/images/logo.png"
+          src="/images/logo.jpg"
           alt="Soumissions Auto"
           width={310}
           height={170}
