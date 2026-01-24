@@ -116,28 +116,13 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
 
     try {
       const formData = new FormData(e.currentTarget)
+formData.append('lang', lang)
 
-      const payload = {
-        firstName: String(formData.get('firstName')),
-        lastName: String(formData.get('lastName')),
-        email: String(formData.get('email')),
-        phone: normalizePhone(String(formData.get('phone'))),
-        postalCode: String(formData.get('postalCode')),
-        service: String(formData.get('service')),
-        brand: String(formData.get('brand')),
-        model: String(formData.get('model')),
-        year: String(formData.get('year')),
-        preferredContact: String(formData.get('preferredContact')),
-        message: String(formData.get('message') || ''),
-        lang,
-      }
-
-      const res = await fetch('/api/send-quote', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      })
-
+await fetch('/api/send-quote', {
+  method: 'POST',
+  body: formData,
+})
+formData.append('lang', lang)
       if (res.status === 200) {
         setStatus('success')
         formRef.current?.reset()
@@ -222,6 +207,7 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
       <form
         ref={formRef}
         onSubmit={handleSubmit}
+		encType="multipart/form-data"
         className="w-full max-w-2xl space-y-4 bg-white p-6 rounded-lg shadow-md"
       >
         <input
@@ -303,6 +289,34 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
           placeholder={t.placeholders.message}
           className="w-full border border-gray-300 rounded-lg p-3 h-28 focus:outline-none focus:border-gray-400"
         />
+
+		<div className="mt-6">
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Ajouter des photos (optionnel – max 5)
+  </label>
+
+  <input
+    type="file"
+	name="photos"
+    accept="image/*"
+    multiple
+	className="mt-2"
+    onChange={(e) => {
+      const files = e.target.files
+      if (!files) return
+      if (files.length > 5) {
+        alert('Maximum 5 photos')
+        e.target.value = ''
+      }
+    }}
+    className="block w-full text-sm text-gray-500
+      file:mr-4 file:rounded-md file:border-0
+      file:bg-gray-100 file:px-4 file:py-2
+      file:text-sm file:font-semibold
+      hover:file:bg-gray-200"
+  />
+</div>
+
 
         <button
           type="submit"
