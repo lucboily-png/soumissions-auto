@@ -11,24 +11,15 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
   const [status, setStatus] = useState<Status>('idle')
   const [loading, setLoading] = useState(false)
   const [views, setViews] = useState<number | null>(null)
-  
-  
-  useEffect(() => {
-  fetch('/api/page-view', { method: 'POST' })
-    .then(res => res.json())
-    .then(data => {
-      if (data?.views) setViews(data.views)
-    })
-    .catch(() => {})
-}, [])
 
-	const isEN = lang === 'en'
+  const isEN = lang === 'en'
   const t = {
     fr: {
       intro: '',
-	  title: 'Demande de soumission – Réparation automobile',
-	  confirmationTitle: '✔️ Demande envoyée avec succès',
-	  confirmationText: 'Votre demande a été transmise à des garages près de chez vous. Un professionnel vous contactera sous peu.',
+      title: 'Demande de soumission – Réparation automobile',
+      confirmationTitle: '✔️ Demande envoyée avec succès',
+      confirmationText:
+        'Votre demande a été transmise à des garages près de chez vous. Un professionnel vous contactera sous peu.',
       success: 'Votre demande a été envoyée avec succès.',
       notfound: 'Aucun garage trouvé près de chez vous.',
       error: 'Une erreur est survenue. Veuillez réessayer.',
@@ -52,10 +43,10 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
         'Freins',
         'Suspension',
         'Alignement',
-		'Silencieux',
-		'Pare-brise',
-		'Esthétique/peinture',
-		'Carosserie',
+        'Silencieux',
+        'Pare-brise',
+        'Esthétique/peinture',
+        'Carosserie',
         'Diagnostic moteur',
         'Entretien général',
         'Autre',
@@ -63,10 +54,11 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
       contactOptions: ['Courriel', 'Téléphone', 'Texto'],
     },
     en: {
-      intro:'',
+      intro: '',
       title: 'Auto Repair Quote Request',
-	  confirmationTitle: '✔️Request successfully sent',
-	  confirmationText: 'Your request has been sent to auto repair shops near you. A professional will contact you shortly.',
+      confirmationTitle: '✔️ Request successfully sent',
+      confirmationText:
+        'Your request has been sent to auto repair shops near you. A professional will contact you shortly.',
       success: 'Your request has been sent successfully.',
       notfound: 'No garage found near you.',
       error: 'An error occurred. Please try again.',
@@ -90,10 +82,10 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
         'Brakes',
         'Suspension',
         'Alignment',
-		'Muffler',
-		'windshield',
-		'Detailing / Body paint',
-		'Body',
+        'Muffler',
+        'Windshield',
+        'Detailing / Body paint',
+        'Body',
         'Engine Diagnostic',
         'General Maintenance',
         'Other',
@@ -103,46 +95,54 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
   }[lang]
 
   function normalizePhone(phone: string) {
-    // Retire tout sauf les chiffres
     const digits = phone.replace(/\D/g, '')
-    if (digits.length !== 10) return phone // si pas 10 chiffres, retourne original
+    if (digits.length !== 10) return phone
     return `(${digits.slice(0, 3)})-${digits.slice(3, 6)}-${digits.slice(6)}`
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setLoading(true)
-    setStatus('idle')
+  e.preventDefault()
+  setLoading(true)
+  setStatus('idle')
 
-    try {
-      const formData = new FormData(e.currentTarget)
-formData.append('lang', lang)
+  try {
+    const formData = new FormData(e.currentTarget)
+    formData.append('lang', lang)
 
-await fetch('/api/send-quote', {
-  method: 'POST',
-  body: formData,
-})
-formData.append('lang', lang)
-      if (res.status === 200) {
-        setStatus('success')
-        formRef.current?.reset()
-      } else if (res.status === 404) {
-        setStatus('notfound')
-      } else {
-        setStatus('error')
-      }
-    } catch (err) {
-      console.error('Submit error:', err)
+    // ✅ tous les fichiers sont dans formData.getAll('photos')
+    const res = await fetch('/api/send-quote', {
+      method: 'POST',
+      body: formData,
+    })
+
+    if (res.status === 200) {
+      setStatus('success')
+      formRef.current?.reset()
+    } else if (res.status === 404) {
+      setStatus('notfound')
+    } else {
       setStatus('error')
-    } finally {
-      setLoading(false)
     }
+  } catch (err) {
+    console.error('Submit error:', err)
+    setStatus('error')
+  } finally {
+    setLoading(false)
   }
+}
+
+  useEffect(() => {
+    fetch('/api/page-view', { method: 'POST' })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.views) setViews(data.views)
+      })
+      .catch(() => {})
+  }, [])
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-gradient-to-r from-blue-50 to-blue-100 p-4">
-	
-	{/* Logo */}
+      {/* Logo */}
       <div className="flex justify-center mb-6">
         <Image
           src={isEN ? '/images/logo-en.jpg' : '/images/logo-fr.jpg'}
@@ -152,44 +152,19 @@ formData.append('lang', lang)
           priority
         />
       </div>
-	  {/* Titre formulaire */}
-      <h2 className="text-3xl font-bold mb-6 text-center">{t.title}</h2>
-	  
-	  <hr className="my-4 border-black-300" />
-	  
-      {/* Texte intro 
-      <h1 className="text-xl md:text-2xl font-medium text-center mb-4 max-w-2xl">
-        {t.intro}
-      </h1>*/}
-		
 
-     
+      {/* Titre */}
+      <h2 className="text-3xl font-bold mb-6 text-center">{t.title}</h2>
+      <hr className="my-4 border-black-300" />
 
       {/* Status messages */}
       {status === 'success' && (
-  <div className="mt-10 rounded-xl bg-white p-8 shadow-lg text-center">
-    <h2 className="text-2xl font-bold mb-4 text-green-700">
-      {t.confirmationTitle}
-    </h2>
-
-    <p className="text-gray-700 text-lg mb-6">
-      {t.confirmationText}
-    </p>
-
-    <p className="text-sm text-gray-500">
-      Soumissions Auto
-    </p>
-  </div>
-)}
-
-{/*
-{views !== null && (
-  <p className="mb-4 text-center text-sm text-gray-600">
-    Déjà <strong>{views}</strong> automobilistes ont consulté ce formulaire
-  </p>
-)}
-*/}
-
+        <div className="mt-10 rounded-xl bg-white p-8 shadow-lg text-center">
+          <h2 className="text-2xl font-bold mb-4 text-green-700">{t.confirmationTitle}</h2>
+          <p className="text-gray-700 text-lg mb-6">{t.confirmationText}</p>
+          <p className="text-sm text-gray-500">Soumissions-Auto.ca</p>
+        </div>
+      )}
       {status === 'notfound' && (
         <div className="mb-6 rounded-lg bg-red-100 text-red-800 p-4 text-center font-medium">
           {t.notfound}
@@ -202,135 +177,76 @@ formData.append('lang', lang)
       )}
 
       {/* Formulaire */}
-	  {status !== 'success' && (
-	  <>
-      <form
-        ref={formRef}
-        onSubmit={handleSubmit}
-		encType="multipart/form-data"
-        className="w-full max-w-2xl space-y-4 bg-white p-6 rounded-lg shadow-md"
-      >
-        <input
-          name="firstName"
-          required
-          placeholder={t.placeholders.firstName}
-          className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-gray-400"
-        />
-        <input
-          name="lastName"
-          required
-          placeholder={t.placeholders.lastName}
-          className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-gray-400"
-        />
-        <input
-          type="email"
-          name="email"
-          required
-          placeholder={t.placeholders.email}
-          className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-gray-400"
-        />
-        <input
-          type="tel"
-          name="phone"
-          required
-          placeholder={t.placeholders.phone}
-          className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-gray-400"
-        />
-        <input
-          name="postalCode"
-          required
-          placeholder={t.placeholders.postalCode}
-          className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-gray-400"
-        />
+      {status !== 'success' && (
+        <>
+          <form
+            ref={formRef}
+            onSubmit={handleSubmit}
+            encType="multipart/form-data"
+            className="w-full max-w-2xl space-y-4 bg-white p-6 rounded-lg shadow-md"
+          >
+            <input name="firstName" required placeholder={t.placeholders.firstName} className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-gray-400" />
+            <input name="lastName" required placeholder={t.placeholders.lastName} className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-gray-400" />
+            <input type="email" name="email" required placeholder={t.placeholders.email} className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-gray-400" />
+            <input type="tel" name="phone" required placeholder={t.placeholders.phone} className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-gray-400" />
+            <input name="postalCode" required placeholder={t.placeholders.postalCode} className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-gray-400" />
+            
+            <select name="service" required className="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:border-gray-400">
+              <option value="">{t.placeholders.service}</option>
+              {t.serviceOptions.map((s) => (
+                <option key={s}>{s}</option>
+              ))}
+            </select>
 
-        <select
-          name="service"
-          required
-          className="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:border-gray-400"
-        >
-          <option value="">{t.placeholders.service}</option>
-          {t.serviceOptions.map((s) => (
-            <option key={s}>{s}</option>
-          ))}
-        </select>
+            <input name="brand" required placeholder={t.placeholders.brand} className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-gray-400" />
+            <input name="model" required placeholder={t.placeholders.model} className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-gray-400" />
+            <input name="year" required placeholder={t.placeholders.year} className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-gray-400" />
 
-        <input
-          name="brand"
-          required
-          placeholder={t.placeholders.brand}
-          className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-gray-400"
-        />
-        <input
-          name="model"
-          required
-          placeholder={t.placeholders.model}
-          className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-gray-400"
-        />
-        <input
-          name="year"
-          required
-          placeholder={t.placeholders.year}
-          className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-gray-400"
-        />
+            <select name="preferredContact" required className="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:border-gray-400">
+              <option value="">{t.placeholders.preferredContact}</option>
+              {t.contactOptions.map((c) => (
+                <option key={c}>{c}</option>
+              ))}
+            </select>
 
-        <select
-          name="preferredContact"
-          required
-          className="w-full border border-gray-300 rounded-lg p-3 bg-white focus:outline-none focus:border-gray-400"
-        >
-          <option value="">{t.placeholders.preferredContact}</option>
-          {t.contactOptions.map((c) => (
-            <option key={c}>{c}</option>
-          ))}
-        </select>
+            <textarea name="message" placeholder={t.placeholders.message} className="w-full border border-gray-300 rounded-lg p-3 h-28 focus:outline-none focus:border-gray-400" />
 
-        <textarea
-          name="message"
-          placeholder={t.placeholders.message}
-          className="w-full border border-gray-300 rounded-lg p-3 h-28 focus:outline-none focus:border-gray-400"
-        />
+            {/* Photos */}
+            <div className="mt-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {isEN ? 'Add photos (optional – max 5)' : 'Ajouter des photos (optionnel – max 5)'}
+              </label>
+              <input
+                type="file"
+                name="photos"
+                accept="image/*"
+                multiple
+                onChange={(e) => {
+                  const files = e.target.files
+                  if (!files) return
+                  if (files.length > 5) {
+                    alert(isEN ? 'Maximum 5 photos' : 'Maximum 5 photos')
+                    e.target.value = ''
+                  }
+                }}
+                className="block w-full text-sm text-gray-500
+                  file:mr-4 file:rounded-md file:border-0
+                  file:bg-gray-100 file:px-4 file:py-2
+                  file:text-sm file:font-semibold
+                  hover:file:bg-gray-200"
+              />
+            </div>
 
-		<div className="mt-6">
-  <label className="block text-sm font-medium text-gray-700 mb-2">
-    Ajouter des photos (optionnel – max 5)
-  </label>
+            <button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold py-3 rounded-lg text-lg">
+              {loading ? '...' : t.submit}
+            </button>
+          </form>
 
-  <input
-    type="file"
-	name="photos"
-    accept="image/*"
-    multiple
-	className="mt-2"
-    onChange={(e) => {
-      const files = e.target.files
-      if (!files) return
-      if (files.length > 5) {
-        alert('Maximum 5 photos')
-        e.target.value = ''
-      }
-    }}
-    className="block w-full text-sm text-gray-500
-      file:mr-4 file:rounded-md file:border-0
-      file:bg-gray-100 file:px-4 file:py-2
-      file:text-sm file:font-semibold
-      hover:file:bg-gray-200"
-  />
-</div>
-
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold py-3 rounded-lg text-lg"
-        >
-          {loading ? '...' : t.submit}
-        </button>
-      </form>
-	  <p className="mt-10 text-center text-sm uppercase tracking-wide text-gray-400">
-      Soumissions-Auto.ca • 2026
-    </p>
-  </>
-	  )}
+          <p className="mt-10 text-center text-sm uppercase tracking-wide text-gray-400">
+            Soumissions-Auto.ca • 2026
+          </p>
+        </>
+      )}
     </div>
   )
 }

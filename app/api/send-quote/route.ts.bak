@@ -17,77 +17,82 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey)
 ================================ */
 export async function POST(req: Request) {
   try {
+    /* -------------------------------
+       Récupération FormData
+    -------------------------------- */
     const formData = await req.formData()
-	const payload = {
-  firstName: String(formData.get('firstName')),
-  lastName: String(formData.get('lastName')),
-  email: String(formData.get('email')),
-  phone: normalizePhone(String(formData.get('phone'))),
-  postalCode: String(formData.get('postalCode')),
-  service: String(formData.get('service')),
-  brand: String(formData.get('brand')),
-  model: String(formData.get('model')),
-  year: String(formData.get('year')),
-  preferredContact: String(formData.get('preferredContact')),
-  message: String(formData.get('message') || ''),
-  lang: String(formData.get('lang') || 'fr'),
-}
-	const photos = formData.getAll('photos') as File[]
-	
-	if (files.length > 5) {
-  return NextResponse.json(
-    { error: 'Maximum 5 photos' },
-    { status: 400 }
-  )
-}
 
-const photoUrls: string[] = []
+    const payload = {
+      firstName: String(formData.get('firstName')),
+      lastName: String(formData.get('lastName')),
+      email: String(formData.get('email')),
+      phone: normalizePhone(String(formData.get('phone'))),
+      postalCode: String(formData.get('postalCode')),
+      service: String(formData.get('service')),
+      brand: String(formData.get('brand')),
+      model: String(formData.get('model')),
+      year: String(formData.get('year')),
+      preferredContact: String(formData.get('preferredContact')),
+      message: String(formData.get('message') || ''),
+      lang: String(formData.get('lang') || 'fr'),
+    }
 
-for (const file of files) {
-  if (!file || file.size === 0) continue
+    /* -------------------------------
+       Gestion des photos
+    -------------------------------- */
+    const files = formData.getAll('photos') as File[]
 
-  const fileExt = file.name.split('.').pop()
-  const fileName = `${crypto.randomUUID()}.${fileExt}`
-  const filePath = `quotes/${fileName}`
+    if (files.length > 5) {
+      return NextResponse.json(
+        { error: 'Maximum 5 photos' },
+        { status: 400 }
+      )
+    }
 
-  const { error: uploadError } = await supabase.storage
-    .from('quote-photos')
-    .upload(filePath, file)
+    const photoUrls: string[] = []
 
-  if (uploadError) {
-    console.error(uploadError)
-    continue
-  }
+    for (const file of files) {
+      if (!file || file.size === 0) continue
 
-  const { data } = await supabase.storage
-    .from('quote-photos')
-    .createSignedUrl(filePath, 60 * 60 * 24 * 7) // 7 jours
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${crypto.randomUUID()}.${fileExt}`
+      const filePath = `quotes/${fileName}`
 
-  if (data?.signedUrl) {
-    photoUrls.push(data.signedUrl)
-  }
-}
+      const { error: uploadError } = await supabase.storage
+        .from('quote-photos')
+        .upload(filePath, file)
 
-photo_urls: photoUrls.length ? photoUrls : null,
+      if (uploadError) {
+        console.error(uploadError)
+        continue
+      }
+
+      const { data } = await supabase.storage
+        .from('quote-photos')
+        .createSignedUrl(filePath, 60 * 60 * 24 * 7) // 7 jours
+
+      if (data?.signedUrl) {
+        photoUrls.push(data.signedUrl)
+      }
+    }
+
     /* -------------------------------
        Normalisation
     -------------------------------- */
-const postalCode = payload.postalCode.replace(/\s/g, '').toUpperCase()
-const fsa = postalCode.substring(0, 3)
+    const postalCode = payload.postalCode.replace(/\s/g, '').toUpperCase()
+    const fsa = postalCode.substring(0, 3)
+    const formattedPhone = payload.phone?.replace(/\D/g, '') || null
+    const lang = payload.lang === 'en' ? 'en' : 'fr'
+    const isEN = lang === 'en'
 
-const formattedPhone = payload.phone?.replace(/\D/g, '') || null
-const lang = data.lang === 'en' ? 'en' : 'fr'
-const isEN = lang === 'en'
-
-/* -------------------------------
-   Match garages par FSA
--------------------------------- */
-const matchedGarages = garages.filter(garage =>
-  garage.postalCodes.some(pc =>
-    pc.replace(/\s/g, '').toUpperCase().substring(0, 3) === fsa
-  )
-)
-
+    /* -------------------------------
+       Match garages par FSA
+    -------------------------------- */
+    const matchedGarages = garages.filter(garage =>
+      garage.postalCodes.some(pc =>
+        pc.replace(/\s/g, '').toUpperCase().substring(0, 3) === fsa
+      )
+    )
 
     if (matchedGarages.length === 0) {
       return NextResponse.json(
@@ -97,11 +102,11 @@ const matchedGarages = garages.filter(garage =>
     }
 
     /* -------------------------------
-       EMAIL CONTENT
+       Contenu email
     -------------------------------- */
     const subject = isEN
-      ? ' 🛠️ New Auto Quote Request'
-      : '🛠️  Nouvelle demande de soumission auto'
+      ? '🛠️ New Auto Quote Request'
+      : '🛠️ Nouvelle demande de soumission auto'
 
     const htmlEmail = `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto">
@@ -122,22 +127,19 @@ const matchedGarages = garages.filter(garage =>
           <li>${isEN ? 'Year' : 'Année'} : ${payload.year}</li>
         </ul>
 
-        ${data.message ? `<p><strong>Message :</strong><br/>${payload.message}</p>` : ''}
-		
-		${photoUrls.length > 0 ? `
-  <h3>Photos jointes</h3>
-  <ul>
-    ${photoUrls.map(
-      (url, i) => `<li><a href="${url}" target="_blank">Photo ${i + 1}</a></li>`
-    ).join('')}
-  </ul>
-` : ''}
+        ${payload.message ? `<p><strong>Message :</strong><br/>${payload.message}</p>` : ''}
 
+        ${photoUrls.length > 0 ? `
+          <h3>Photos jointes</h3>
+          <ul>
+            ${photoUrls.map((url, i) => `<li><a href="${url}" target="_blank">Photo ${i + 1}</a></li>`).join('')}
+          </ul>
+        ` : ''}
       </div>
     `
 
     /* -------------------------------
-       SEND EMAILS
+       Envoi des emails
     -------------------------------- */
     for (const garage of matchedGarages) {
       await resend.emails.send({
@@ -149,7 +151,7 @@ const matchedGarages = garages.filter(garage =>
     }
 
     /* -------------------------------
-       INSERT SUPABASE
+       Insert Supabase
     -------------------------------- */
     const { error } = await supabase.from('quotes').insert([
       {
@@ -167,6 +169,7 @@ const matchedGarages = garages.filter(garage =>
 
         language: lang,
         garages_contacted: matchedGarages.map(g => g.name),
+        photo_urls: photoUrls.length ? photoUrls : null,
       },
     ])
 
@@ -181,4 +184,11 @@ const matchedGarages = garages.filter(garage =>
     console.error(err)
     return NextResponse.json({ error: 'Server error' }, { status: 500 })
   }
+}
+
+/* ===============================
+   Helper functions
+================================ */
+function normalizePhone(phone: string) {
+  return phone.replace(/\D/g, '')
 }

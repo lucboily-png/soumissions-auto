@@ -21,7 +21,8 @@ export async function POST(req: Request) {
        Récupération FormData
     -------------------------------- */
     const formData = await req.formData()
-
+	const photos = formData.getAll('photos') as File[]
+	
     const payload = {
       firstName: String(formData.get('firstName')),
       lastName: String(formData.get('lastName')),

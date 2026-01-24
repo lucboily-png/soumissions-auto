@@ -101,42 +101,35 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setLoading(true)
-    setStatus('idle')
+  e.preventDefault()
+  setLoading(true)
+  setStatus('idle')
 
-    try {
-      const formData = new FormData(e.currentTarget)
-      formData.append('lang', lang)
+  try {
+    const formData = new FormData(e.currentTarget)
+    formData.append('lang', lang)
 
-      // Limite photos à 5
-      const files = formData.getAll('photos') as File[]
-      if (files.length > 5) {
-        alert(isEN ? 'Maximum 5 photos' : 'Maximum 5 photos')
-        setLoading(false)
-        return
-      }
+    // ✅ tous les fichiers sont dans formData.getAll('photos')
+    const res = await fetch('/api/send-quote', {
+      method: 'POST',
+      body: formData,
+    })
 
-      const res = await fetch('/api/send-quote', {
-        method: 'POST',
-        body: formData,
-      })
-
-      if (res.status === 200) {
-        setStatus('success')
-        formRef.current?.reset()
-      } else if (res.status === 404) {
-        setStatus('notfound')
-      } else {
-        setStatus('error')
-      }
-    } catch (err) {
-      console.error('Submit error:', err)
+    if (res.status === 200) {
+      setStatus('success')
+      formRef.current?.reset()
+    } else if (res.status === 404) {
+      setStatus('notfound')
+    } else {
       setStatus('error')
-    } finally {
-      setLoading(false)
     }
+  } catch (err) {
+    console.error('Submit error:', err)
+    setStatus('error')
+  } finally {
+    setLoading(false)
   }
+}
 
   useEffect(() => {
     fetch('/api/page-view', { method: 'POST' })
@@ -218,31 +211,34 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
 
             <textarea name="message" placeholder={t.placeholders.message} className="w-full border border-gray-300 rounded-lg p-3 h-28 focus:outline-none focus:border-gray-400" />
 
-            {/* Photos */}
-            <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {isEN ? 'Add photos (optional – max 5)' : 'Ajouter des photos (optionnel – max 5)'}
-              </label>
-              <input
-                type="file"
-                name="photos"
-                accept="image/*"
-                multiple
-                onChange={(e) => {
-                  const files = e.target.files
-                  if (!files) return
-                  if (files.length > 5) {
-                    alert(isEN ? 'Maximum 5 photos' : 'Maximum 5 photos')
-                    e.target.value = ''
-                  }
-                }}
-                className="block w-full text-sm text-gray-500
-                  file:mr-4 file:rounded-md file:border-0
-                  file:bg-gray-100 file:px-4 file:py-2
-                  file:text-sm file:font-semibold
-                  hover:file:bg-gray-200"
-              />
-            </div>
+            {/* -------------------------------
+   Upload photos (optionnel, max 5)
+-------------------------------- */}
+<div className="mt-6">
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    {isEN ? 'Add photos (optional – max 5)' : 'Ajouter des photos (optionnel – max 5)'}
+  </label>
+
+  <input
+    type="file"
+    name="photos"
+    accept="image/*"
+    multiple
+    onChange={(e) => {
+      const files = e.target.files
+      if (!files) return
+      if (files.length > 5) {
+        alert(isEN ? 'Maximum 5 photos allowed' : 'Maximum 5 photos autorisées')
+        e.target.value = '' // réinitialise le champ
+      }
+    }}
+    className="block w-full text-sm text-gray-500
+      file:mr-4 file:rounded-md file:border-0
+      file:bg-gray-100 file:px-4 file:py-2
+      file:text-sm file:font-semibold
+      hover:file:bg-gray-200"
+  />
+</div>
 
             <button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold py-3 rounded-lg text-lg">
               {loading ? '...' : t.submit}
