@@ -114,7 +114,7 @@ export async function POST(req: Request) {
     <div style="max-width:600px;margin:auto;background:#ffffff;border-radius:8px;padding:24px">
 
       <h2 style="margin-top:0;color:#1e40af">
-        ${isEN ? 'You just receive a new quote request' : 'Vous avez reçu une nouvelle demande de soumission'}
+        ${isEN ? 'You just receive a new quote request from 👉' : 'Vous avez reçu une nouvelle demande de soumission de la part de 👉'}
       </h2>
 
       <p style="margin:8px 0"><strong>${isEN ? 'Name' : 'Nom'} :</strong> ${payload.firstName} ${payload.lastName}</p>
