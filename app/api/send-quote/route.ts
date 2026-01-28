@@ -110,34 +110,72 @@ export async function POST(req: Request) {
       : '🛠️ Nouvelle demande de soumission auto'
 
     const htmlEmail = `
-      <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto">
-        <h2 style="color:#111">
-          ${isEN ? 'New Quote Request' : 'Nouvelle demande de soumission'}
-        </h2>
+  <div style="background:#f3f4f6;padding:24px;font-family:Arial,sans-serif">
+    <div style="max-width:600px;margin:auto;background:#ffffff;border-radius:8px;padding:24px">
 
-        <p><strong>${isEN ? 'Name' : 'Nom'} :</strong> ${payload.firstName} ${payload.lastName}</p>
-        <p><strong>Email :</strong> ${payload.email}</p>
-        <p><strong>${isEN ? 'Phone' : 'Téléphone'} :</strong> ${payload.phone}</p>
-        <p><strong>${isEN ? 'Postal Code' : 'Code postal'} :</strong> ${postalCode}</p>
-        <p><strong>${isEN ? 'Service' : 'Service'} :</strong> ${payload.service}</p>
+      <h2 style="margin-top:0;color:#1e40af">
+        ${isEN ? '🛠️ New Auto Quote Request' : '🛠️ Nouvelle demande de soumission auto'}
+      </h2>
 
-        <p><strong>${isEN ? 'Vehicle' : 'Véhicule'} :</strong></p>
+      <p style="margin:8px 0"><strong>${isEN ? 'Name' : 'Nom'} :</strong> ${payload.firstName} ${payload.lastName}</p>
+      <p style="margin:8px 0"><strong>Email :</strong> ${payload.email}</p>
+      <p style="margin:8px 0"><strong>${isEN ? 'Phone' : 'Téléphone'} :</strong> ${payload.phone}</p>
+      <p style="margin:8px 0"><strong>${isEN ? 'Postal Code' : 'Code postal'} :</strong> ${postalCode}</p>
+      <p style="margin:8px 0"><strong>${isEN ? 'Service' : 'Service'} :</strong> ${payload.service}</p>
+
+      <hr style="margin:20px 0;border:none;border-top:1px solid #e5e7eb" />
+
+      <h3 style="margin-bottom:8px;color:#111">
+        ${isEN ? 'Vehicle information' : 'Informations sur le véhicule'}
+      </h3>
+
+      <table style="width:100%;border-collapse:collapse">
+        <tr>
+          <td style="padding:6px 0"><strong>${isEN ? 'Brand' : 'Marque'}</strong></td>
+          <td>${payload.brand}</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0"><strong>${isEN ? 'Model' : 'Modèle'}</strong></td>
+          <td>${payload.model}</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0"><strong>${isEN ? 'Year' : 'Année'}</strong></td>
+          <td>${payload.year}</td>
+        </tr>
+      </table>
+
+      ${payload.message ? `
+        <hr style="margin:20px 0;border:none;border-top:1px solid #e5e7eb" />
+        <p><strong>${isEN ? 'Message from client' : 'Message du client'} :</strong><br/>
+        ${payload.message}</p>
+      ` : ''}
+
+      ${photoUrls.length > 0 ? `
+        <hr style="margin:20px 0;border:none;border-top:1px solid #e5e7eb" />
+        <p><strong>${isEN ? 'Attached photos' : 'Photos jointes'} :</strong></p>
         <ul>
-          <li>${isEN ? 'Brand' : 'Marque'} : ${payload.brand}</li>
-          <li>${isEN ? 'Model' : 'Modèle'} : ${payload.model}</li>
-          <li>${isEN ? 'Year' : 'Année'} : ${payload.year}</li>
+          ${photoUrls
+            .map(
+              (url, i) =>
+                `<li><a href="${url}" target="_blank">📷 ${isEN ? 'Photo' : 'Photo'} ${i + 1}</a></li>`
+            )
+            .join('')}
         </ul>
+      ` : ''}
 
-        ${payload.message ? `<p><strong>Message :</strong><br/>${payload.message}</p>` : ''}
+      <hr style="margin:24px 0;border:none;border-top:1px solid #e5e7eb" />
 
-        ${photoUrls.length > 0 ? `
-          <h3>Photos jointes</h3>
-          <ul>
-            ${photoUrls.map((url, i) => `<li><a href="${url}" target="_blank">Photo ${i + 1}</a></li>`).join('')}
-          </ul>
-        ` : ''}
-      </div>
-    `
+      <p style="font-size:12px;color:#6b7280;text-align:center">
+        Soumissions-Auto.ca<br/>
+        ${isEN
+          ? 'This request was sent automatically.'
+          : 'Cette demande a été transmise automatiquement.'}
+      </p>
+
+    </div>
+  </div>
+`
+
 
     /* -------------------------------
        Envoi des emails
