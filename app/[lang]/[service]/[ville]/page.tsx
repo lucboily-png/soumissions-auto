@@ -1,7 +1,9 @@
-export default function Page({ params }: { params: any }) {
+export default function Page({ params }: { params?: any }) {
   return (
-    <div>
-      Lang: {params?.lang}, Service: {params?.service}, Ville: {params?.ville}
+    <div style={{ padding: 20, fontSize: 20 }}>
+      Lang: {params?.lang ?? "undefined"}, 
+      Service: {params?.service ?? "undefined"}, 
+      Ville: {params?.ville ?? "undefined"}
     </div>
   );
 }
