@@ -1,5 +1,3 @@
-"use client";
-
 import QuoteForm from "@/components/QuoteForm";
 
 type PageProps = {
@@ -11,7 +9,7 @@ type PageProps = {
 };
 
 export default function Page({ params }: PageProps) {
-  const lang: 'fr' | 'en' = params.lang === "en" ? "en" : "fr";
+  const lang: "fr" | "en" = params.lang === "en" ? "en" : "fr";
   const service = params.service.replace("-", " ");
   const ville = params.ville.replace("-", " ");
 
