@@ -1,5 +1,3 @@
-"use client"; // <-- IMPORTANT pour pouvoir utiliser usePathname
-
 import QuoteForm from "@/components/QuoteForm";
 import { usePathname } from "next/navigation";
 
