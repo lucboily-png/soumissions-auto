@@ -17,11 +17,16 @@
   {
     "name": "JL Mécanique",
     "email": "jlmecaniquestjean@gmail.com",
-    "postalCodes": ["J2W2A3"]
+    "postalCodes": ["J2W2A3", "J0J0A2"]
+  },
+  {
+    "name": "Centre de services Démo",
+    "email": "centredeservicesdemo@outlook.com",
+    "postalCodes": ["H4G1W7"]
   },
   {
     "name": "Garage Express",
     "email": "luc.boily@gmail.com",
-    "postalCodes": ["J9H3W3"]
+    "postalCodes": ["J9H3W3", "J0J0A2"]
   }
 ]
