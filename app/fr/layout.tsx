@@ -1,0 +1,20 @@
+import './globals.css'
+import { headers } from 'next/headers'
+
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const headersList = await headers()
+  const acceptLanguage = headersList.get('accept-language') || 'fr'
+  const lang = acceptLanguage.startsWith('en') ? 'en' : 'fr'
+
+  return (
+    <html lang={lang} suppressHydrationWarning>
+      <body className="min-h-screen bg-gray-100">
+        {children}
+      </body>
+    </html>
+  )
+}
