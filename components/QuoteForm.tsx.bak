@@ -158,7 +158,7 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
       {/* Titre */}
       <h1 className="text-3xl font-bold mb-6 text-center">{t.title}</h1>
       <hr />
-
+		<h2 className="text-3xl font-bold mb-6 text-center">{t.intro}</h2>
       {/* Status messages */}
       {status === 'success' && (
         <div className="mt-10 rounded-xl bg-white p-8 shadow-lg text-center">

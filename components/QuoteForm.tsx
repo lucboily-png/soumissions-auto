@@ -16,7 +16,7 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
   const t = {
     fr: {
       intro: '⭐⭐⭐⭐⭐',
-      title: '⭐⭐ Demande de soumissions ⭐⭐',
+      title: 'Demande de soumissions',
       confirmationTitle: '✔️ Demande envoyée avec succès',
       confirmationText:
         'Votre demande a été transmise à des garages près de chez vous. Un professionnel vous contactera sous peu.',
