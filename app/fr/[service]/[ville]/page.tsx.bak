@@ -1,22 +1,24 @@
-import QuoteForm from "@/components/QuoteForm";
+import QuoteForm from '@/components/QuoteForm'
 
-type PageProps = {
-  params?: {
-    service?: string;
-    ville?: string;
-  };
-};
-
-export default function Page({ params }: PageProps) {
-  const service = params?.service?.replace("-", " ") ?? "service freins";
-  const ville = params?.ville?.replace("-", " ") ?? "ville gatineau";
+export default function Page({
+  params,
+}: {
+  params: { service: string; ville: string }
+}) {
+  const { service, ville } = params
 
   return (
-    <main className="flex flex-col items-center min-h-screen bg-gradient-to-r from-blue-50 to-blue-100 p-4">
-      <h1 className="text-3xl font-bold mb-4">
-        {/*Soumission de {service} à {ville}*/}
+    <main className="max-w-3xl mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-4">
+        Soumission pour {service} à {ville}
       </h1>
-      <QuoteForm />
+
+      <p className="mb-6">
+        Recevez rapidement plusieurs soumissions de garages locaux pour votre
+        {service} à {ville}.
+      </p>
+
+      <QuoteForm lang="fr" />
     </main>
-  );
+  )
 }

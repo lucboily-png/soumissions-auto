@@ -10,12 +10,12 @@ export default function Page({
   return (
     <main className="max-w-3xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-4">
-        Soumission pour {service} à {ville}
+         {service}  {ville}
       </h1>
 
       <p className="mb-6">
-        Recevez rapidement plusieurs soumissions de garages locaux pour votre
-        {service} à {ville}.
+        
+        {service}  {ville}.
       </p>
 
       <QuoteForm lang="fr" />
