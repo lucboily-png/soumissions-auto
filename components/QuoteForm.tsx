@@ -16,7 +16,7 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
   const t = {
     fr: {
       intro: '',
-      title: 'Demande de soumissions',
+      title: '⭐⭐ Demande de soumissions ⭐⭐',
       confirmationTitle: '✔️ Demande envoyée avec succès',
       confirmationText:
         'Votre demande a été transmise à des garages près de chez vous. Un professionnel vous contactera sous peu.',
@@ -56,7 +56,7 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
     },
     en: {
       intro: '',
-      title: 'Auto Repair Quote Request',
+      title: '⭐⭐ Auto Repair Quote Request ⭐⭐',
       confirmationTitle: '✔️ Request successfully sent',
       confirmationText:
         'Your request has been sent to auto repair shops near you. A professional will contact you shortly.',
