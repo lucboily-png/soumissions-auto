@@ -55,7 +55,7 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
       contactOptions: ['Courriel', 'Téléphone', 'Texto'],
     },
     en: {
-      intro: '',
+      intro: '⭐⭐⭐⭐⭐',
       title: 'Auto Repair Quote Request',
       confirmationTitle: '✔️ Request successfully sent',
       confirmationText:
