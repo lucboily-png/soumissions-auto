@@ -8,13 +8,13 @@ export default function Page({
   const { service, ville } = params
 
   return (
-    <main className="max-w-3xl mx-auto p-6">
+    <main className="flex flex-col items-center min-h-screen bg-gradient-to-r from-blue-50 to-blue-100 p-4">
       <h1 className="text-2xl font-bold mb-4">
         {service}  {ville}
       </h1>
 
       <p className="mb-6">
-         {service}  {ville}.
+         {service}  {ville}
       </p>
 
       <QuoteForm lang="en" />

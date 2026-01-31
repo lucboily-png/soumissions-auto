@@ -10,11 +10,11 @@ export default function Page({
   return (
     <main className="max-w-3xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-4">
-        {service} quote in {ville}
+        {service}  {ville}
       </h1>
 
       <p className="mb-6">
-        Get multiple quotes from local garages for your {service} in {ville}.
+         {service}  {ville}
       </p>
 
       <QuoteForm lang="en" />
