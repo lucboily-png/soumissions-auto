@@ -1,23 +1,18 @@
-import '../globals.css'
-import Image from 'next/image'
+import './globals.css'
+import { headers } from 'next/headers'
 
-export default function EnLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  return (
-    <html lang="en">
-      <body className="min-h-screen bg-gray-100">
-        <header className="p-4">
-          <Image
-            src="/images/logo-en.jpg"
-            alt="Auto Quotes"
-            width={200}
-            height={60}
-          />
-        </header>
+  const headersList = await headers()
+  const acceptLanguage = headersList.get('accept-language') || 'fr'
+  const lang = acceptLanguage.startsWith('en') ? 'en' : 'fr'
 
+  return (
+    <html lang={lang} suppressHydrationWarning>
+      <body className="min-h-screen bg-gray-100">
         {children}
       </body>
     </html>
