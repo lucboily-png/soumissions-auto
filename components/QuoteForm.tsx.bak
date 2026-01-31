@@ -50,6 +50,7 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
         'Diagnostic moteur',
         'Entretien général',
         'Autre',
+		'Lavage de voiture',
       ],
       contactOptions: ['Courriel', 'Téléphone', 'Texto'],
     },
@@ -88,6 +89,7 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
         'Body',
         'Engine Diagnostic',
         'General Maintenance',
+		'Car wash',
         'Other',
       ],
       contactOptions: ['Email', 'Phone', 'Text'],
@@ -147,8 +149,8 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
         <Image
           src={isEN ? '/images/logo-en.jpg' : '/images/logo-fr.jpg'}
           alt="Soumissions Auto"
-          width={816}
-          height={355}
+          width={800}
+          height={344}
           priority
         />
       </div>
