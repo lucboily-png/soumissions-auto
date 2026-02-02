@@ -22,8 +22,6 @@ export default function GarageRecruitmentForm({
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const pathname = usePathname()
-  const lang = pathname.startsWith('/en') ? 'en' : 'fr'
-  const isEN = lang === 'en'
 
   const t = {
     title: isEN

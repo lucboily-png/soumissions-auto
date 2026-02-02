@@ -25,9 +25,6 @@ export default function GarageRecruitmentForm({
   const lang = pathname.startsWith('/en') ? 'en' : 'fr'
   const isEN = lang === 'en'
 
-  const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
-
   const t = {
     title: isEN
       ? 'Join the Soumissions-Auto.ca Network'
