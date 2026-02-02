@@ -8,16 +8,7 @@ export default function RecrutementPage() {
       <h1 className="text-3xl font-bold mb-4 text-center">
         Vous êtes propriétaire d’un garage ?
       </h1>
-{/* Logo */}
-      <div className="flex justify-center mb-6">
-        <mage
-          src={isEN ? './images/logo-en.jpg' : './images/logo-fr.jpg'}
-          alt="Soumissions Auto"
-          width={750}
-          height={294}
-          priority
-        />
-      </div>
+
       <p className="text-gray-700 mb-8">
         Soumissions-Auto.ca aide les garages à recevoir des demandes de clients
         locaux prêts à prendre rendez-vous.  
