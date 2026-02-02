@@ -29,7 +29,7 @@ export default function GarageRecruitmentForm() {
       postal: 'Code postal',
       message: 'Message (optionnel)',
       messagePlaceholder: 'Parlez-nous brièvement de votre garage...',
-      submit: 'Commencer',
+      submit: 'Soumettre',
       sending: 'Envoi en cours…',
     },
     en: {
@@ -47,7 +47,7 @@ export default function GarageRecruitmentForm() {
       postal: 'Postal code',
       message: 'Message (optional)',
       messagePlaceholder: 'Tell us briefly about your garage...',
-      submit: 'Get started',
+      submit: 'Submit',
       sending: 'Sending…',
     },
   }[lang]

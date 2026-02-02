@@ -64,7 +64,7 @@ const translations = {
   en: {
     introTitle: 'Find the best garages near you in under 24 hours',
     introText:
-      'Get up to 3 free quotes from certified businesses in your area by filling out our online form.',
+      'Get quotes from certified businesses in your area by filling out our online form.',
 
     formTitle: 'Auto Repair Quote Request',
 

@@ -58,7 +58,7 @@ const translations = {
     garageCtaTitle: 'Êtes-vous propriétaire d’un garage ?',
     garageCtaText:
       'Rejoignez notre réseau et recevez des demandes de clients sérieux, prêts à prendre rendez-vous.',
-    garageCtaButton: 'Commencer',
+    garageCtaButton: 'En savoir plus',
   },
 
   en: {
