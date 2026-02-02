@@ -90,8 +90,8 @@ export default function GarageRecruitmentForm() {
     <Image
       src="/images/logosa.png"
       alt="Soumissions Auto"
-      width={220}
-      height={80}
+      width={320}
+      height={180}
       priority
     />
   </div>
