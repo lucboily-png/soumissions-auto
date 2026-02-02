@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
+import Image from 'next/image'
 
 type Lang = 'fr' | 'en'
 
@@ -83,12 +84,23 @@ export default function GarageRecruitmentForm() {
     <section className="rounded-2xl border border-slate-200 bg-slate-50 px-6 py-12">
       <div className="mx-auto max-w-3xl">
         {/* Intro */}
-        <div className="mb-10 text-center">
-          <h2 className="mb-3 text-3xl font-bold text-slate-900">
-            {t.title}
-          </h2>
-          <p className="text-lg text-slate-600">{t.subtitle}</p>
-        </div>
+<div className="mb-10 text-center">
+  {/* Logo */}
+  <div className="mb-6 flex justify-center">
+    <Image
+      src="/images/logosa.png"
+      alt="Soumissions Auto"
+      width={220}
+      height={80}
+      priority
+    />
+  </div>
+
+  <h2 className="mb-3 text-3xl font-bold text-slate-900">
+    {t.title}
+  </h2>
+  <p className="text-lg text-slate-600">{t.subtitle}</p>
+</div>
 
         {/* Form */}
         <form

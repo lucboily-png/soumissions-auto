@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
+import Image from 'next/image'
 
 type Lang = 'fr' | 'en'
 
@@ -29,7 +30,7 @@ export default function GarageRecruitmentForm() {
       postal: 'Code postal',
       message: 'Message (optionnel)',
       messagePlaceholder: 'Parlez-nous brièvement de votre garage...',
-      submit: 'Commencer',
+      submit: 'Soumettre',
       sending: 'Envoi en cours…',
     },
     en: {
