@@ -15,7 +15,8 @@ export default function RecrutementPage() {
         Rejoignez notre réseau et recevez des opportunités sans engagement.
       </p>
 
-      <GarageRecruitmentForm lang="fr" />
+      {/* ✅ PAS DE PROP lang */}
+      <GarageRecruitmentForm />
     </main>
   )
 }
