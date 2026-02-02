@@ -1,10 +1,22 @@
 // /app/fr/page.tsx
 import QuoteForm from '@/components/QuoteForm'
 
-export default function FRPage() {
+<section className="max-w-3xl mx-auto mb-10 text-center">
+  <h1 className="text-3xl font-bold mb-4">
+    Trouvez les meilleurs garages près de chez vous en moins de 24h
+  </h1>
+
+  <p className="text-lg text-gray-600">
+    Obtenez jusqu’à <strong>3 soumissions gratuites</strong> de la part de
+    garages <strong>certifiés et locaux</strong> en remplissant notre
+    formulaire en ligne.
+  </p>
+</section>
+
+export default function Page() {
   return (
     <div className="p-4">
-      <QuoteForm lang="fr" />
+      <QuoteForm />
     </div>
   )
 }

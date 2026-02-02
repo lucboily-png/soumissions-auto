@@ -1,0 +1,46 @@
+import { NextResponse } from 'next/server'
+import nodemailer from 'nodemailer'
+
+export async function POST(req: Request) {
+  try {
+    const data = await req.json()
+
+    const {
+      name,
+      garage,
+      email,
+      phone,
+      city,
+    } = data
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_APP_PASSWORD,
+      },
+    })
+
+    const mailOptions = {
+      from: `"Soumissions-Auto" <${process.env.GMAIL_USER}>`,
+      to: 'luc.boily@gmail.com',
+      subject: '🛠️ Nouvelle demande – Recrutement garage',
+      html: `
+        <h2>Nouvelle demande de garage</h2>
+        <p><strong>Nom :</strong> ${name}</p>
+        <p><strong>Garage :</strong> ${garage}</p>
+        <p><strong>Email :</strong> ${email}</p>
+		 <p><strong>Code Postal:</strong> ${postalcode}</p>
+        <p><strong>Téléphone :</strong> ${phone || 'Non fourni'}</p>
+        <p><strong>Ville / Code postal :</strong> ${city || 'Non fourni'}</p>
+      `,
+    }
+
+    await transporter.sendMail(mailOptions)
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('Erreur recrutement:', error)
+    return NextResponse.json({ success: false }, { status: 500 })
+  }
+}
