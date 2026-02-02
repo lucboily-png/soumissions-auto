@@ -13,17 +13,13 @@ import {
 } from 'lucide-react'
 
 type Lang = 'fr' | 'en'
-
-export default function GarageRecruitmentForm({
-  lang = 'fr',
-}: {
-  lang?: Lang
-}) {
-  const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
+export default function GarageRecruitmentForm() {
   const pathname = usePathname()
   const lang = pathname.startsWith('/en') ? 'en' : 'fr'
   const isEN = lang === 'en'
+
+  const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
 
   const t = {
     title: isEN
