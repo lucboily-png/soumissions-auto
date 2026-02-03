@@ -123,6 +123,14 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
   const formRef = useRef<HTMLFormElement>(null)
   const [status, setStatus] = useState<Status>('idle')
   const [loading, setLoading] = useState(false)
+  
+  useEffect(() => {
+  fetch('/api/page-view', {
+    method: 'POST',
+  }).catch((err) => {
+    console.error('Page view tracking error:', err)
+  })
+}, [])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()

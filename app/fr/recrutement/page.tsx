@@ -9,7 +9,7 @@ export default function RecrutementPage() {
         Vous êtes propriétaire d’un garage ?
       </h1>
 
-      <p className="text-gray-700 mb-8">
+      <p className="text-gray-700 mb-8 text-center">
         Soumissions-Auto.ca aide les garages à recevoir des demandes de soumissions de clients
         locaux prêts à prendre rendez-vous.  
         Rejoignez notre réseau et recevez des opportunités.
