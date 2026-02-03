@@ -2,21 +2,12 @@
 
 import { useRef, useState, useEffect } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 
 type Lang = 'fr' | 'en'
 type Status = 'idle' | 'success' | 'notfound' | 'error'
 
-  const [views, setViews] = useState<number | null>(null)
-  
-  
-  useEffect(() => {
-  fetch('/api/page-view', { method: 'POST' })
-    .then(res => res.json())
-    .then(data => {
-      if (data?.views) setViews(data.views)
-    })
-    .catch(() => {})
-}, [])
+
 const translations = {
   fr: {
     introTitle: 'Trouvez les meilleurs garages près de chez vous en moins de 24h',

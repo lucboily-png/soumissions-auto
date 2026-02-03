@@ -6,10 +6,6 @@ import Image from 'next/image'
 type Lang = 'fr' | 'en'
 type Status = 'idle' | 'success' | 'notfound' | 'error'
 
-export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
-  const formRef = useRef<HTMLFormElement>(null)
-  const [status, setStatus] = useState<Status>('idle')
-  const [loading, setLoading] = useState(false)
   const [views, setViews] = useState<number | null>(null)
   
   
