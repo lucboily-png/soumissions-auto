@@ -7,19 +7,6 @@ import Link from 'next/link'
 type Lang = 'fr' | 'en'
 type Status = 'idle' | 'success' | 'notfound' | 'error'
 
-export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
-
-  const formRef = useRef<HTMLFormElement>(null)
-  const [status, setStatus] = useState<Status>('idle')
-  const [loading, setLoading] = useState(false)
-  
-  useEffect(() => {
-  fetch('/api/page-view', {
-    method: 'POST',
-  }).catch((err) => {
-    console.error('Page view tracking error:', err)
-  })
-}, [])
 
 const translations = {
   fr: {
@@ -128,6 +115,15 @@ const translations = {
     garageCtaButton: 'Get started',
   },
 }
+
+export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
+  const t = translations[lang]
+  const isEN = lang === 'en'
+
+  const formRef = useRef<HTMLFormElement>(null)
+  const [status, setStatus] = useState<Status>('idle')
+  const [loading, setLoading] = useState(false)
+  
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
