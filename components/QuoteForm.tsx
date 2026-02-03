@@ -7,21 +7,7 @@ import Link from 'next/link'
 type Lang = 'fr' | 'en'
 type Status = 'idle' | 'success' | 'notfound' | 'error'
 
-const formRef = useRef<HTMLFormElement>(null)
-  const [status, setStatus] = useState<Status>('idle')
-  const [loading, setLoading] = useState(false)
 
-  // ✅ COMPTEUR DE VISITES
-  useEffect(() => {
-    fetch('/api/page-view', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        page_name: 'soumissions_auto_quote_form',
-      }),
-    }).catch(console.error)
-  }, [])
-  
 const translations = {
   fr: {
     introTitle: 'Trouvez les meilleurs garages près de chez vous en moins de 24h',
