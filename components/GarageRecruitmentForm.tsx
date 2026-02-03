@@ -159,9 +159,5 @@ function Input({
         className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-600"
       />
     </div>
-	
-	<div>
-<p> Soumissions-auto.ca - 2026 </p>
-</div>
   )
 }
