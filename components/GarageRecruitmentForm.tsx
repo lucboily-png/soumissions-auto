@@ -17,8 +17,7 @@ export default function GarageRecruitmentForm() {
   const t = {
     fr: {
       title: 'Rejoignez le réseau Soumissions-Auto.ca',
-      subtitle:
-        'Recevez des demandes de clients qualifiés de votre région.',
+      subtitle: 'Recevez des demandes de clients qualifiés de votre région.',
       successTitle: 'Demande envoyée avec succès ✅',
       successText:
         'Merci pour votre intérêt. Un membre de notre équipe vous contactera rapidement.',
@@ -90,8 +89,8 @@ export default function GarageRecruitmentForm() {
     <Image
       src="/images/logosa.png"
       alt="Soumissions Auto"
-      width={520}
-      height={380}
+      width={820}
+      height={680}
       priority
     />
   </div>
