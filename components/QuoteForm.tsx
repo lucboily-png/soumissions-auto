@@ -367,14 +367,6 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
   </button>
 </form>
 
- {/* Footer */}
-    <footer className="mt-16 text-center text-sm text-gray-500">
-      © Soumissions-Auto – 2026
-    </footer>
- 
- </div>
-	 
-
 
           {/* CTA garages */}
           <section className="mt-16 max-w-3xl mx-auto rounded-2xl bg-gray-900 px-8 py-10 text-white text-center">
@@ -390,5 +382,13 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
           </section>
         </>
       )}
+	  
+	  {/* Footer */}
+<footer className="mt-16 text-center text-sm text-gray-500">
+  © Soumissions-Auto – 2026
+</footer>
+
+    </div>
+	
   )
 }
