@@ -16,6 +16,7 @@ type Status = 'idle' | 'success' | 'notfound' | 'error'
     .catch(() => {})
 }, [])
 
+const [views, setViews] = useState<number | null>(null)
 const translations = {
   fr: {
     introTitle: 'Trouvez les meilleurs garages près de chez vous en moins de 24h',
