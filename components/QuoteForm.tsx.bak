@@ -383,12 +383,7 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
         </>
       )}
 	  
-	  {/* Footer */}
-<footer className="mt-16 text-center text-sm text-gray-500">
-  © Soumissions-Auto – 2026
-</footer>
-
     </div>
-	 )
+	
   )
 }
