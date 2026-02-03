@@ -352,7 +352,9 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
     {loading ? '...' : t.submit}
   </button>
 </form>
-
+<p className="mt-10 text-center text-sm uppercase tracking-wide text-gray-400">
+      Soumissions-Auto.ca • 2026
+    </p>
 
           {/* CTA garages */}
           <section className="mt-16 max-w-3xl mx-auto rounded-2xl bg-gray-900 px-8 py-10 text-white text-center">
