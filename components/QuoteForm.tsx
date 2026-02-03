@@ -389,6 +389,6 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
 </footer>
 
     </div>
-	
+	 )
   )
 }
