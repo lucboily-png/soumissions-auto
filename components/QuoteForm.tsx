@@ -8,8 +8,6 @@ type Lang = 'fr' | 'en'
 type Status = 'idle' | 'success' | 'notfound' | 'error'
 
 export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
-  const t = translations[lang]
-  const isEN = lang === 'en'
 
   const formRef = useRef<HTMLFormElement>(null)
   const [status, setStatus] = useState<Status>('idle')
