@@ -18,7 +18,7 @@ export default function GarageRecruitmentForm() {
     fr: {
       title: 'Rejoignez le réseau Soumissions-Auto.ca',
       subtitle:
-        'Recevez des demandes de clients qualifiés dans votre région. Aucun frais fixe. Aucun engagement.',
+        'Recevez des demandes de clients qualifiés de votre région.',
       successTitle: 'Demande envoyée avec succès ✅',
       successText:
         'Merci pour votre intérêt. Un membre de notre équipe vous contactera rapidement.',
@@ -36,7 +36,7 @@ export default function GarageRecruitmentForm() {
     en: {
       title: 'Join the Soumissions-Auto.ca Network',
       subtitle:
-        'Receive qualified customer requests in your area. No fixed fees. No commitment.',
+        'Receive qualified customer requests in your area.',
       successTitle: 'Request sent successfully ✅',
       successText:
         'Thank you for your interest. Our team will contact you shortly.',
