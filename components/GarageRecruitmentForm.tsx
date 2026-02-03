@@ -140,7 +140,6 @@ export default function GarageRecruitmentForm() {
   )
 }
 
-<p> Soumissions-auto.ca - 2026 </p>
 /* ===============================
    Input Component
 ================================ */
@@ -162,3 +161,6 @@ function Input({
     </div>
   )
 }
+<div>
+<p> Soumissions-auto.ca - 2026 </p>
+</div>

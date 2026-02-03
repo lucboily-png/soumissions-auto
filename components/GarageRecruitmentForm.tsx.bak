@@ -140,6 +140,7 @@ export default function GarageRecruitmentForm() {
   )
 }
 
+<p> Soumissions-auto.ca - 2026 </p>
 /* ===============================
    Input Component
 ================================ */
