@@ -10,9 +10,9 @@ export default function RecrutementPage() {
       </h1>
 
       <p className="text-gray-700 mb-8">
-        Soumissions-Auto.ca aide les garages à recevoir des demandes de clients
+        Soumissions-Auto.ca offre aux garages de recevoir des demandes de clients
         locaux prêts à prendre rendez-vous.  
-        Rejoignez notre réseau et recevez des opportunités sans engagement.
+        Rejoignez notre réseau maintenant et profitez d'opportunités de servir de nouveaux clients.
       </p>
 
       {/* ✅ PAS DE PROP lang */}
