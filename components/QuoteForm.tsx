@@ -177,11 +177,23 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
         />
       </div>
 	  
-      {/* Intro client */}
+	   {/* Intro client */}
       <section className="max-w-3xl mx-auto mb-10 text-center">
         <h1 className="text-2xl font-bold mb-2">{t.introTitle}</h1>
         <p className="text-gray-600">{t.introText}</p>
       </section>
+	  
+	  	{/* Logo */}
+      <div className="flex justify-center mb-8">
+        <Image
+          src={isEN ? '/images/logo-en.png' : '/images/logo-fr.png'}
+          alt="Soumissions Auto"
+          width={700}
+          height={335}
+          priority
+        />
+      </div>
+	  
 
 
       {/* Titre formulaire */}
