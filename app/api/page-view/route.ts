@@ -7,14 +7,19 @@ const supabase = createClient(
 )
 
 export async function POST() {
-  const { data, error } = await supabase.rpc('increment_page_view', {
-    page_name: 'quote_form',
-  })
+  try {
+    const { data, error } = await supabase.rpc('increment_page_view', {
+      p_name: 'quote_form', // ⚠️ correspond au nom attendu dans Supabase
+    })
 
-  if (error) {
-    console.error('Page view error:', error)
+    if (error) {
+      console.error('Page view error:', error)
+      return NextResponse.json({ error: 'Counter error' }, { status: 500 })
+    }
+
+    return NextResponse.json({ views: data[0].current_views })
+  } catch (err) {
+    console.error(err)
     return NextResponse.json({ error: 'Counter error' }, { status: 500 })
   }
-
-  return NextResponse.json({ views: data })
 }

@@ -7,7 +7,7 @@ import Link from 'next/link'
 type Lang = 'fr' | 'en'
 type Status = 'idle' | 'success' | 'notfound' | 'error'
 
-
+ 
 const translations = {
   fr: {
     introTitle: 'Trouvez les meilleurs garages près de chez vous en moins de 24h',
@@ -117,6 +117,15 @@ const translations = {
 }
 
 export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
+	
+	useEffect(() => {
+    // Appel à l'API pour incrémenter le compteur à chaque visite
+    fetch('/api/page-view', { method: 'POST' })
+      .then(res => res.json())
+      .then(data => console.log('Page views:', data.views))
+      .catch(err => console.error('Page view error:', err))
+  }, [])
+
   const t = translations[lang]
   const isEN = lang === 'en'
 
