@@ -164,10 +164,10 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-50 to-blue-100 px-4 py-10">
+    <div className="min-h-screen bg-gradient-to-r from-blue-50 to-blue-100 px-4 py-8">
 
 		{/* Logo */}
-      <div className="flex justify-center mb-8">
+      <div className="flex justify-center mb-4">
         <Image
           src={isEN ? '/images/logosa.png' : '/images/logosa.png'}
           alt="Soumissions Auto"
@@ -180,11 +180,10 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
 	   {/* Intro client */}
       <section className="max-w-3xl mx-auto mb-10 text-center">
         <h1 className="text-2xl font-bold mb-2">{t.introTitle}</h1>
-        <p className="text-gray-600">{t.introText}</p>
       </section>
 	  
 	  	{/* Logo */}
-      <div className="flex justify-center mb-8">
+      <div className="flex justify-center mb-12">
         <Image
           src={isEN ? '/images/logo-en.png' : '/images/logo-fr.png'}
           alt="Soumissions Auto"
@@ -194,6 +193,10 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
         />
       </div>
 	  
+	   {/* Intro client */}
+      <section className="max-w-2xl mx-auto mb-10 text-center">
+        <p className="text-2xl font-bold text-gray-700">{t.introText}</p>
+      </section>
 
 
       {/* Titre formulaire */}
