@@ -14,17 +14,16 @@ const supabase = createClient(
 export async function POST(req: Request) {
   const { email } = await req.json()
 
-  // 1️⃣ Cherche si le garage existe déjà
+  // Vérifie si le garage existe
   const { data: existing, error: selectError } = await supabase
     .from('garages')
     .select('id')
     .eq('email', email)
-    .single() // récupère 1 ligne max
+    .single()
 
   let garageId: string
 
   if (selectError || !existing) {
-    // garage inexistant → insert
     garageId = crypto.randomUUID()
     const { error: insertError } = await supabase
       .from('garages')
@@ -34,18 +33,23 @@ export async function POST(req: Request) {
     garageId = existing.id
   }
 
-  // 2️⃣ Crée la session Stripe
+  const APP_URL = process.env.NEXT_PUBLIC_APP_URL
+
+  // Crée la session Stripe
   const session = await stripe.checkout.sessions.create({
     mode: 'subscription',
     customer_email: email,
     line_items: [{ price: process.env.STRIPE_PRICE_ID!, quantity: 1 }],
-    subscription_data: { trial_period_days: 30, metadata: { garage_id: garageId } },
+    subscription_data: {
+      trial_period_days: 30,
+      metadata: { garage_id: garageId },
+    },
     metadata: { garage_id: garageId },
-    success_url: 'https://soumissions-auto.ca/fr/success?session_id={CHECKOUT_SESSION_ID}',
-	cancel_url: 'https://soumissions-auto.ca/fr/cancel',
+    success_url: `${APP_URL}/fr/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${APP_URL}/fr/cancel`,
   })
 
-  // 3️⃣ Met à jour Supabase avec stripe_session_id
+  // Met à jour Supabase avec stripe_session_id
   const { error: updateError } = await supabase
     .from('garages')
     .update({ stripe_session_id: session.id })
@@ -53,5 +57,9 @@ export async function POST(req: Request) {
 
   if (updateError) console.error('⚠️ Supabase update failed:', updateError)
 
-  return NextResponse.json({ url: session.url, stripe_session_id: session.id, garage_id: garageId })
+  return NextResponse.json({
+    url: session.url,
+    stripe_session_id: session.id,
+    garage_id: garageId,
+  })
 }
