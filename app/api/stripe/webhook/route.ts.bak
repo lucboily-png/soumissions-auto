@@ -42,7 +42,7 @@ export async function POST(req: Request) {
         .eq('id', garageId)
         .then(({ error }) => {
           if (error) console.error('⚠️ Supabase trial update failed:', error)
-          else console.log(`✅ Garage ${garageId} en trialing`)
+          else console.log(`✅ Garage ${garageId} mis à jour en trialing`)
         })
     }
   }
