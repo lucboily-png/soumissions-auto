@@ -10,7 +10,7 @@ export async function POST(req: Request) {
 
   let event: Stripe.Event
 
-  try {s
+  try {
     event = stripe.webhooks.constructEvent(
       Buffer.from(body),
       signature,
