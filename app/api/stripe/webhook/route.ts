@@ -32,10 +32,7 @@ export async function POST(req: Request) {
     const session = event.data.object as Stripe.Checkout.Session
     const garageId = session.metadata?.garage_id
 
-    if (!garageId) {
-      console.error('❌ garage_id introuvable')
-      return new Response('Missing garage_id', { status: 200 })
-    }
+    if (!garageId) return new Response('Missing garage_id', { status: 200 })
 
     const { error } = await supabase
       .from('garages')

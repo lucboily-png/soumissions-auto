@@ -1,8 +1,9 @@
+import type Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
 
 export async function POST(req: Request) {
-  const Stripe = (await import('stripe')).default
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
+  const StripeModule = (await import('stripe')).default
+  const stripe = new StripeModule(process.env.STRIPE_SECRET_KEY as string, {
     apiVersion: '2026-01-28.clover',
   })
 
@@ -27,26 +28,25 @@ export async function POST(req: Request) {
     return new Response('Webhook error', { status: 400 })
   }
 
-  // ✅ Gérer les événements qui nous intéressent
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session
-
     const garageId = session.metadata?.garage_id
+
     if (!garageId) {
-      console.error('❌ garage_id introuvable dans la session Stripe')
+      console.error('❌ garage_id introuvable')
       return new Response('Missing garage_id', { status: 200 })
     }
 
     const { error } = await supabase
       .from('garages')
       .update({
-        payment_status: 'trialing',              // passe en trial dès que paiement effectué
+        payment_status: 'trialing',
         stripe_session_id: session.id,
         stripe_subscription_id: session.subscription as string,
       })
       .eq('id', garageId)
 
-    if (error) console.error('❌ Erreur Supabase:', error)
+    if (error) console.error('❌ Supabase update error:', error)
     else console.log(`✅ Garage ${garageId} mis à jour`)
   }
 
