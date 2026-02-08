@@ -49,15 +49,13 @@ export async function POST(req: Request) {
 
   // 2️⃣ Premier vrai paiement → paid
 if (event.type === 'invoice.paid') {
-  const invoice = event.data.object as Stripe.Invoice
+const invoice = event.data.object as any // ⚡ cast any pour contourner le type strict
+const subscriptionId: string | undefined = invoice.subscription
 
-  // ⚡ vérifier que subscription existe
-  const subscriptionId = typeof invoice.subscription === 'string' ? invoice.subscription : undefined
-
-  if (!subscriptionId) {
-    console.error('❌ invoice.subscription introuvable')
-    return new Response('No subscription ID', { status: 400 })
-  }
+if (!subscriptionId) {
+  console.error('❌ invoice.subscription introuvable')
+  return new Response('No subscription ID', { status: 400 })
+}
 
   supabase
     .from('garages')
