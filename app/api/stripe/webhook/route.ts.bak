@@ -28,8 +28,8 @@ export async function POST(req: Request) {
 
   // 1️⃣ Checkout terminé → trialing
   if (event.type === 'checkout.session.completed') {
-    const session = event.data.object as Stripe.Checkout.Session
-    const garageId = session.metadata?.garage_id
+    const session = event.data.object as any
+    const garageId: string = session.metadata?.garage_id
 
     if (garageId) {
       supabase
@@ -48,27 +48,27 @@ export async function POST(req: Request) {
   }
 
   // 2️⃣ Premier vrai paiement → paid
-if (event.type === 'invoice.paid') {
-const invoice = event.data.object as any // ⚡ cast any pour contourner le type strict
-const subscriptionId: string | undefined = invoice.subscription
+  if (event.type === 'invoice.paid') {
+    const invoice = event.data.object as any
+    const subscriptionId: string = invoice.subscription
 
-if (!subscriptionId) {
-  console.error('❌ invoice.subscription introuvable')
-  return new Response('No subscription ID', { status: 400 })
-}
+    if (!subscriptionId) {
+      console.error('❌ invoice.subscription introuvable')
+      return new Response('No subscription ID', { status: 400 })
+    }
 
-  supabase
-    .from('garages')
-    .update({
-      payment_status: 'paid',
-      paid_at: new Date().toISOString(),
-    })
-    .eq('stripe_subscription_id', subscriptionId)
-    .then(({ error }) => {
-      if (error) console.error('⚠️ Supabase paid update failed:', error)
-      else console.log(`✅ Subscription ${subscriptionId} payée`)
-    })
-}
+    supabase
+      .from('garages')
+      .update({
+        payment_status: 'paid',
+        paid_at: new Date().toISOString(),
+      })
+      .eq('stripe_subscription_id', subscriptionId)
+      .then(({ error }) => {
+        if (error) console.error('⚠️ Supabase paid update failed:', error)
+        else console.log(`✅ Subscription ${subscriptionId} payée`)
+      })
+  }
 
   return new Response(JSON.stringify({ received: true }), { status: 200 })
 }

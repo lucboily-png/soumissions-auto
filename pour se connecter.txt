@@ -19,3 +19,6 @@ Stripe:
 price_1SxdPPDjTyAwEDKfmM1CDX5v 
 
  Your webhook signing secret is whsec_ffc2e58834d05e2b9e1b94e3a348f8d249f9e6860c3a508256013ac33ab27ac2
+ 
+ success_url: 'https://soumissions-auto.ca/fr/success?session_id={CHECKOUT_SESSION_ID}',
+		cancel_url: 'https://soumissions-auto.ca/fr/cancel',

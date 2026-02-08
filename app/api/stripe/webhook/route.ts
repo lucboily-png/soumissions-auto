@@ -1,20 +1,15 @@
 import Stripe from 'stripe'
-import { createClient } from '@supabase/supabase-js'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2026-01-28.clover',
 })
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
 
 export async function POST(req: Request) {
   const body = await req.arrayBuffer()
   const signature = req.headers.get('stripe-signature')!
 
   let event: Stripe.Event
+
   try {
     event = stripe.webhooks.constructEvent(
       Buffer.from(body),
@@ -26,48 +21,71 @@ export async function POST(req: Request) {
     return new Response('Webhook error', { status: 400 })
   }
 
-  // 1️⃣ Checkout terminé → trialing
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object as any
-    const garageId: string = session.metadata?.garage_id
+  // ⚠️ Supabase import dynamique
+  const { createClient } = await import('@supabase/supabase-js')
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
 
-    if (garageId) {
-      supabase
-        .from('garages')
-        .update({
-          payment_status: 'trialing',
-          stripe_session_id: session.id,
-          stripe_subscription_id: session.subscription as string,
-        })
-        .eq('id', garageId)
-        .then(({ error }) => {
-          if (error) console.error('⚠️ Supabase trial update failed:', error)
-          else console.log(`✅ Garage ${garageId} mis à jour en trialing`)
-        })
+  // ✅ Checkout complété → TRIAL
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object as Stripe.Checkout.Session
+
+    const garageId = session.metadata?.garage_id
+    const subscriptionId =
+      typeof session.subscription === 'string'
+        ? session.subscription
+        : undefined
+
+    if (!garageId) {
+      console.error('❌ garage_id manquant')
+      return new Response('OK')
+    }
+
+    const { error } = await supabase
+      .from('garages')
+      .update({
+        payment_status: 'trialing',
+        stripe_session_id: session.id,
+        stripe_subscription_id: subscriptionId,
+      })
+      .eq('id', garageId)
+
+    if (error) {
+      console.error('⚠️ Supabase trial update failed:', error)
+    } else {
+      console.log(`✅ Garage ${garageId} en TRIAL`)
     }
   }
 
-  // 2️⃣ Premier vrai paiement → paid
+  // ✅ Paiement réel prélevé → PAID
   if (event.type === 'invoice.paid') {
     const invoice = event.data.object as any
-    const subscriptionId: string = invoice.subscription
+
+    const subscriptionId =
+      typeof invoice.subscription === 'string'
+        ? invoice.subscription
+        : null
 
     if (!subscriptionId) {
-      console.error('❌ invoice.subscription introuvable')
-      return new Response('No subscription ID', { status: 400 })
+      console.error('❌ subscription introuvable sur invoice')
+      return new Response('OK')
     }
 
-    supabase
+    const { error } = await supabase
       .from('garages')
       .update({
         payment_status: 'paid',
         paid_at: new Date().toISOString(),
       })
       .eq('stripe_subscription_id', subscriptionId)
-      .then(({ error }) => {
-        if (error) console.error('⚠️ Supabase paid update failed:', error)
-        else console.log(`✅ Subscription ${subscriptionId} payée`)
-      })
+
+    if (error) {
+      console.error('⚠️ Supabase paid update failed:', error)
+    } else {
+      console.log(`💰 Abonnement ${subscriptionId} payé`)
+    }
   }
 
   return new Response(JSON.stringify({ received: true }), { status: 200 })
