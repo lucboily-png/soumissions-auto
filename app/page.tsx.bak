@@ -1,13 +1,17 @@
-import { headers } from 'next/headers'
-import { redirect } from 'next/navigation'
+'use client'
 
-export default async function Home() {
-  const headersList = await headers()
-  const lang = headersList.get('accept-language') ?? ''
-
-  if (lang.startsWith('fr')) {
-    redirect('/fr')
-  }
-
-  redirect('/en')
+export default function TestStripe() {
+  return (
+    <button
+      onClick={async () => {
+        const res = await fetch('/api/stripe/checkout', {
+          method: 'POST',
+        })
+        const data = await res.json()
+        window.location.href = data.url
+      }}
+    >
+      Tester Stripe
+    </button>
+  )
 }

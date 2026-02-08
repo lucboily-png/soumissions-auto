@@ -1,22 +1,40 @@
 // /app/fr/page.tsx
+'use client'
+
+import { useState } from 'react'
 import QuoteForm from '@/components/QuoteForm'
 
-<section className="max-w-3xl mx-auto mb-10 text-center">
-  <h1 className="text-3xl font-bold mb-4">
-    Trouvez les meilleurs garages près de chez vous en moins de 24h
-  </h1>
-
-  <p className="text-lg text-gray-600">
-    Obtenez jusqu’à <strong>3 soumissions gratuites</strong> de la part de
-    garages <strong>certifiés et locaux</strong> en remplissant notre
-    formulaire en ligne.
-  </p>
-</section>
-
 export default function Page() {
+  const [loading, setLoading] = useState(false)
+
+  const handleStripe = async () => {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/stripe/checkout', { method: 'POST' })
+      const data = await res.json()
+      window.location.href = data.url
+    } catch (err) {
+      console.error('Erreur Stripe:', err)
+      setLoading(false)
+    }
+  }
+
   return (
     <div className="p-4">
+      {/* Ton formulaire existant */}
       <QuoteForm />
+
+      {/* Séparateur visuel pour Stripe */}
+      <div className="mt-8 text-center">
+        <h2 className="text-xl font-bold mb-4">Abonnement Premium</h2>
+        <button
+          onClick={handleStripe}
+          disabled={loading}
+          className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+        >
+          {loading ? 'Redirection...' : 'Tester Stripe'}
+        </button>
+      </div>
     </div>
   )
 }

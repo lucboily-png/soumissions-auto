@@ -13,3 +13,8 @@ Upload route.ts
 git add . 
 git commit -m "ajout garage"
 git push
+
+Stripe:
+
+price_1SxdPPDjTyAwEDKfmM1CDX5v 
+
