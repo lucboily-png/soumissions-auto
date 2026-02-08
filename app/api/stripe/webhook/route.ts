@@ -48,22 +48,29 @@ export async function POST(req: Request) {
   }
 
   // 2️⃣ Premier vrai paiement → paid
-  if (event.type === 'invoice.paid') {
-    const invoice = event.data.object as Stripe.Invoice
-    const subscriptionId = invoice.subscription as string
+if (event.type === 'invoice.paid') {
+  const invoice = event.data.object as Stripe.Invoice
 
-    supabase
-      .from('garages')
-      .update({
-        payment_status: 'paid',
-        paid_at: new Date().toISOString(),
-      })
-      .eq('stripe_subscription_id', subscriptionId)
-      .then(({ error }) => {
-        if (error) console.error('⚠️ Supabase paid update failed:', error)
-        else console.log(`✅ Subscription ${subscriptionId} payée`)
-      })
+  // ⚡ vérifier que subscription existe
+  const subscriptionId = typeof invoice.subscription === 'string' ? invoice.subscription : undefined
+
+  if (!subscriptionId) {
+    console.error('❌ invoice.subscription introuvable')
+    return new Response('No subscription ID', { status: 400 })
   }
+
+  supabase
+    .from('garages')
+    .update({
+      payment_status: 'paid',
+      paid_at: new Date().toISOString(),
+    })
+    .eq('stripe_subscription_id', subscriptionId)
+    .then(({ error }) => {
+      if (error) console.error('⚠️ Supabase paid update failed:', error)
+      else console.log(`✅ Subscription ${subscriptionId} payée`)
+    })
+}
 
   return new Response(JSON.stringify({ received: true }), { status: 200 })
 }
