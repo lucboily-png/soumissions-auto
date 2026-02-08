@@ -1,6 +1,9 @@
 import Stripe from 'stripe'
 import { NextResponse } from 'next/server'
 
+console.log('💡 STRIPE_SECRET_KEY:', process.env.STRIPE_SECRET_KEY ? '✅ OK' : '❌ MISSING')
+
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2026-01-28.clover',
 })
