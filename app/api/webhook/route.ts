@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-10-16',
+  apiVersion: '2026-01-28.clover',
 })
 
 const supabase = createClient(
@@ -36,8 +36,8 @@ export async function POST(req: Request) {
         garage_id: garageId,
         email: email, // utile pour le webhook ou suivi
       },
-      success_url: 'http://localhost:3000/fr/success',
-      cancel_url: 'http://localhost:3000/fr/cancel',
+    success_url: 'https://soumissions-auto.ca/fr/success?session_id={CHECKOUT_SESSION_ID}',
+	cancel_url: 'https://soumissions-auto.ca/fr/cancel',
     })
 
     // Optionnel : enregistrer directement l'ID Stripe dans Supabase dès création de session
