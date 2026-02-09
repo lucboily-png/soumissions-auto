@@ -1,19 +1,30 @@
-import { NextResponse } from 'next/server'
-export const runtime = 'nodejs'
 import Stripe from 'stripe'
+import { NextResponse } from 'next/server'
+
+export const runtime = 'nodejs'
+
 export async function POST(req: Request) {
+  console.log('Stripe route called')
+
+  if (!process.env.STRIPE_SECRET_KEY) {
+    console.error('STRIPE_SECRET_KEY missing at runtime')
+    return NextResponse.json({ error: 'Stripe key missing' }, { status: 500 })
+  }
+
+  let body
   try {
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+  }
 
-    const body = await req.json()
-    const email = body.email
+  const { email } = body
+  if (!email) {
+    return NextResponse.json({ error: 'Email missing' }, { status: 400 })
+  }
 
-    if (!email) {
-      return NextResponse.json(
-        { error: 'Email manquant' },
-        { status: 400 }
-      )
-    }
+  try {
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
@@ -22,9 +33,7 @@ export async function POST(req: Request) {
         {
           price_data: {
             currency: 'cad',
-            product_data: {
-              name: 'Accès Soumissions Auto',
-            },
+            product_data: { name: 'Soumissions Auto' },
             unit_amount: 1000,
           },
           quantity: 1,
@@ -38,7 +47,7 @@ export async function POST(req: Request) {
   } catch (err: any) {
     console.error('STRIPE CHECKOUT ERROR:', err)
     return NextResponse.json(
-      { error: err.message ?? 'Erreur Stripe' },
+      { error: err.message ?? 'Stripe error' },
       { status: 500 }
     )
   }
