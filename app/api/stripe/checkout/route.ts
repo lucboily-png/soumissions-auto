@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 export const runtime = 'nodejs'
-
 import Stripe from 'stripe'
 export async function POST(req: Request) {
   try {
