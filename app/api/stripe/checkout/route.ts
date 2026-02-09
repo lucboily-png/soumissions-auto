@@ -1,18 +1,31 @@
-import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
+import { NextResponse } from 'next/server'
 
-export async function POST() {
+export const runtime = 'nodejs'
+
+export async function POST(req: Request) {
   try {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
 
+    const body = await req.json()
+    const email = body.email
+
+    if (!email) {
+      return NextResponse.json(
+        { error: 'Email manquant' },
+        { status: 400 }
+      )
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
+      customer_email: email,
       line_items: [
         {
           price_data: {
             currency: 'cad',
             product_data: {
-              name: 'Test paiement',
+              name: 'Accès Soumissions Auto',
             },
             unit_amount: 1000,
           },
@@ -27,7 +40,7 @@ export async function POST() {
   } catch (err: any) {
     console.error('STRIPE CHECKOUT ERROR:', err)
     return NextResponse.json(
-      { error: err.message ?? 'Stripe error' },
+      { error: err.message ?? 'Erreur Stripe' },
       { status: 500 }
     )
   }
