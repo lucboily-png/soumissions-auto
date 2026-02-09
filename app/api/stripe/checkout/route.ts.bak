@@ -1,49 +1,67 @@
 import { NextResponse } from 'next/server'
-import Stripe from 'stripe'
+
+export const runtime = 'nodejs' // IMPORTANT pour Stripe
 
 export async function POST(req: Request) {
   try {
-    // 1️⃣ Vérification ENV
-    if (!process.env.STRIPE_SECRET_KEY) {
-      console.error('STRIPE_SECRET_KEY missing')
-      return new Response('Stripe key missing', { status: 500 })
+    // 🔒 Vérification clé Stripe
+    const stripeSecretKey = process.env.STRIPE_SECRET_KEY
+
+    if (!stripeSecretKey) {
+      console.error('❌ STRIPE_SECRET_KEY manquante')
+      return NextResponse.json(
+        { error: 'Stripe key missing' },
+        { status: 500 }
+      )
     }
 
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    // ⏱ Import Stripe AU RUNTIME (OBLIGATOIRE sur Vercel)
+    const Stripe = (await import('stripe')).default
+    const stripe = new Stripe(stripeSecretKey, {
       apiVersion: '2026-01-28.clover',
     })
 
-    // 2️⃣ Lecture body
+    // 📦 Données reçues
     const body = await req.json()
-    const { email } = body
+    const email = body.email
 
     if (!email) {
-      return new Response('Email missing', { status: 400 })
+      return NextResponse.json(
+        { error: 'Email requis' },
+        { status: 400 }
+      )
     }
 
-    // 3️⃣ Création session Stripe
+    // 💳 Création session Checkout
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       payment_method_types: ['card'],
       customer_email: email,
+
       line_items: [
         {
           price_data: {
             currency: 'cad',
-            product_data: { name: 'Soumissions Auto – Accès Garage' },
-            unit_amount: 4900,
+            product_data: {
+              name: 'Soumission garage',
+            },
+            unit_amount: 1999, // 19.99 $
           },
           quantity: 1,
         },
       ],
-      success_url: 'https://soumissions-auto.ca/fr/success',
+
+      success_url: 'https://soumissions-auto.ca/fr/success?session_id={CHECKOUT_SESSION_ID}',
       cancel_url: 'https://soumissions-auto.ca/fr/cancel',
     })
 
-    // 4️⃣ Réponse OK
     return NextResponse.json({ url: session.url })
-  } catch (err) {
-    console.error('Stripe checkout error:', err)
-    return new Response('Server error', { status: 500 })
+
+  } catch (error: any) {
+    console.error('❌ Stripe checkout error:', error)
+    return NextResponse.json(
+      { error: 'Erreur serveur Stripe' },
+      { status: 500 }
+    )
   }
 }
