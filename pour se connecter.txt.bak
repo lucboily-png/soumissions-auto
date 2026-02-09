@@ -1,1 +1,21 @@
+cd C:\Users\18196\soumission-garagiste
 
+npm run dev
+
+Ouvre : http://localhost:3000
+
+
+RESEND_API_KEY
+re_BX1tzLYR_4Hu1qyEVaFiy28iC6PcGh9jk
+
+Upload route.ts
+
+git add . 
+git commit -m "ajout garage"
+git push
+
+Stripe:
+
+price_1SxdPPDjTyAwEDKfmM1CDX5v 
+
+ Your webhook signing secret is whsec_ffc2e58834d05e2b9e1b94e3a348f8d249f9e6860c3a508256013ac33ab27ac2
