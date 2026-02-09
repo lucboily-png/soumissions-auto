@@ -12,9 +12,7 @@ export async function POST(req: Request) {
     )
   }
 
-  const stripe = new Stripe(stripeSecretKey, {
-    apiVersion: '2023-10-16',
-  })
+  const stripe = new Stripe(stripeSecretKey)
 
   const body = await req.json()
 
