@@ -16,7 +16,7 @@ export async function POST(req: Request) {
   const Stripe = (await import('stripe')).default
 
   const stripe = new Stripe(stripeSecretKey, {
-    apiVersion: '2026-01-28',
+    apiVersion: '2026-01-28.clover',
   })
 
   const { email } = await req.json()

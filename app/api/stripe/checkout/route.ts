@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 
+console.log(process.env.STRIPE_SECRET_KEY)
+
 export async function POST(req: Request) {
   // 🔐 Sécurité : vérifier la clé AU RUNTIME
   const stripeSecretKey = process.env.STRIPE_SECRET_KEY
