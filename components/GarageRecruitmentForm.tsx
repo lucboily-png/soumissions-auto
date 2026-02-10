@@ -87,18 +87,18 @@ export default function GarageRecruitmentForm() {
   }
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-slate-50 px-6 py-12">
+    <section className="rounded-2xl border border-slate-200 bg-slate-50 px-6 py-5">
       <div className="mx-auto max-w-3xl">
         <div className="mb-10 text-center">
-          <div className="mb-6 flex justify-center">
-            <Image
-              src="/images/logosa.png"
-              alt="Soumissions Auto"
-              width={820}
-              height={680}
-              priority
-            />
-          </div>
+          <div className="flex justify-center mb-12">
+        <Image
+          src={isEN ? '/images/recrut-garage-en.png' : '/images/recrut-garage-fr.png'}
+          alt="Soumissions Auto"
+          width={800}
+          height={970}
+          priority
+        />
+      </div>
           <h2 className="mb-3 text-3xl font-bold text-slate-900">{t.title}</h2>
           <p className="text-lg text-slate-600">{t.subtitle}</p>
         </div>

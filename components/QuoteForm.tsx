@@ -188,7 +188,7 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
           src={isEN ? '/images/logo-en.png' : '/images/logo-fr.png'}
           alt="Soumissions Auto"
           width={800}
-          height={738}
+          height={971}
           priority
         />
       </div>
