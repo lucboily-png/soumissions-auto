@@ -1,3 +1,7 @@
+export async function POST(req: Request) {
+  console.log('STRIPE_SECRET_KEY:', process.env.STRIPE_SECRET_KEY)
+  return new Response('Check logs', { status: 200 })
+
 import Stripe from 'stripe'
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
