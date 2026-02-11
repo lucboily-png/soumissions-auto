@@ -10,7 +10,7 @@ type Status = 'idle' | 'success' | 'notfound' | 'error'
  
 const translations = {
   fr: {
-    introTitle: 'Trouvez les meilleurs garages près de chez vous en moins de 24h',
+    introTitle: 'Obtenez un rendez-vous rapidement avec un près de chez vous.',
     introText:
       'Obtenez des soumissions de la part d’entreprises certifiées dans votre région en remplissant notre formulaire en ligne.',
 

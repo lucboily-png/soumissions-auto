@@ -10,7 +10,7 @@ type Status = 'idle' | 'success' | 'notfound' | 'error'
  
 const translations = {
   fr: {
-    introTitle: 'Trouvez les meilleurs garages près de chez vous en moins de 24h',
+    introTitle: 'Obtenez un rendez-vous rapidement avec un garages près de chez vous.',
     introText:
       'Obtenez des soumissions de la part d’entreprises certifiées dans votre région en remplissant notre formulaire en ligne.',
 
@@ -188,7 +188,7 @@ export default function QuoteForm({ lang = 'fr' }: { lang?: Lang }) {
           src={isEN ? '/images/logo-en.png' : '/images/logo-fr.png'}
           alt="Soumissions Auto"
           width={800}
-          height={738}
+          height={971}
           priority
         />
       </div>
