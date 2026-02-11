@@ -10,9 +10,9 @@ type Status = 'idle' | 'success' | 'notfound' | 'error'
  
 const translations = {
   fr: {
-    introTitle: 'Obtenez un rendez-vous rapidement avec un garage près de chez vous.',
+    introTitle: 'Obtenez un rendez-vous rapidement avec un garage certifié près de chez vous.',
     introText:
-      'Obtenez des soumissions de la part d’entreprises certifiées dans votre région en remplissant notre formulaire en ligne.',
+      'Obtenez des soumissions de la part d’entreprises certifiées de votre région en remplissant notre formulaire en ligne.',
 
     formTitle: 'Demande de soumissions',
 
